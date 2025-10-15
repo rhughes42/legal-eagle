@@ -1,41 +1,18 @@
 {
 	"name": "pandektes-challenge",
 	"version": "0.0.1",
-<<<<<<< HEAD
-	"description": "",
-=======
 	"description": "Lightweight NestJS starter customized for the Pandektes LegalEagle challenge with TypeScript, Prisma ORM, PostgreSQL, and Docker support",
->>>>>>> 36702e36 (Initialize project structure with essential configurations and files. Added .gitignore.)
 	"author": "Ryan Hughes <ryan@graphtechnologies.xyz> (https://graphtechnologies.xyz)",
 	"private": true,
 	"license": "MIT",
 	"scripts": {
 		"build": "nest build",
-<<<<<<< HEAD
-		"prepare": "husky install",
-		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-		"start": "nest start",
-		"start:dev": "nest start --watch",
-		"start:debug": "nest start --debug --watch",
-		"start:prod": "node dist/main",
-		"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-		"lint:ci": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-		"format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
-		"prisma:generate": "prisma generate",
-		"prisma:migrate": "prisma migrate dev",
-		"test": "jest",
-		"test:watch": "jest --watch",
-		"test:cov": "jest --coverage",
-		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-		"test:e2e": "jest --config ./test/jest-e2e.json"
-=======
 		"start:prod": "node dist/main",
 		"start:dev": "nest start --watch",
 		"prisma:generate": "prisma generate",
 		"prisma:migrate": "prisma migrate dev",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
 		"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
->>>>>>> 36702e36 (Initialize project structure with essential configurations and files. Added .gitignore.)
 	},
 	"dependencies": {
 		"@apollo/server": "^5.0.0",
@@ -44,10 +21,7 @@
 		"@nestjs/core": "^11.0.1",
 		"@nestjs/graphql": "^13.2.0",
 		"@nestjs/platform-express": "^11.0.1",
-<<<<<<< HEAD
-=======
 		"@prisma/client": "^5.21.1",
->>>>>>> 36702e36 (Initialize project structure with essential configurations and files. Added .gitignore.)
 		"graphql": "^16.11.0",
 		"graphql-upload": "^17.0.0",
 		"reflect-metadata": "^0.2.2",
@@ -70,10 +44,7 @@
 		"globals": "^16.0.0",
 		"jest": "^30.0.0",
 		"prettier": "^3.4.2",
-<<<<<<< HEAD
-=======
 		"prisma": "^5.21.1",
->>>>>>> 36702e36 (Initialize project structure with essential configurations and files. Added .gitignore.)
 		"source-map-support": "^0.5.21",
 		"supertest": "^7.0.0",
 		"ts-jest": "^29.2.5",
@@ -100,8 +71,4 @@
 		"coverageDirectory": "../coverage",
 		"testEnvironment": "node"
 	}
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 36702e36 (Initialize project structure with essential configurations and files. Added .gitignore.)

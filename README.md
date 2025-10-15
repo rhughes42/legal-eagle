@@ -5,16 +5,16 @@ Lightweight NestJS starter customized for the Pandektes LegalEagle challenge. Th
 Table of Contents
 
 - [Pandektes — LegalEagle (NestJS)](#pandektes--legaleagle-nestjs)
-	- [Features](#features)
-	- [Tech stack](#tech-stack)
-	- [Quick start](#quick-start)
-	- [Environment variables](#environment-variables)
-	- [Development](#development)
-	- [Database (Prisma)](#database-prisma)
-	- [Docker](#docker)
-	- [Tests](#tests)
-	- [Contributing](#contributing)
-	- [License](#license)
+  - [Features](#features)
+  - [Tech stack](#tech-stack)
+  - [Quick start](#quick-start)
+  - [Environment variables](#environment-variables)
+  - [Development](#development)
+  - [Database (Prisma)](#database-prisma)
+  - [Docker](#docker)
+  - [Tests](#tests)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Features
 
