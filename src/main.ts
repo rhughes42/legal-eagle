@@ -1,10 +1,12 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
+import { graphqlUploadExpress } from 'graphql-upload';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        snapshot: true,
+    });
 
     // Apply the upload limits defined for the challenge.
     app.use(graphqlUploadExpress({ maxFileSize: 10_000_000, maxFiles: 5 }));

@@ -1,0 +1,154 @@
+# Example queries and mutations for testing with Apollo GraphQL extension
+
+# Retrieves all documents from the database
+# Returns: Array of Document objects with all available fields
+# Usage: Use this query to fetch the complete list of documents for display in lists or tables
+query GetAllDocuments {
+    documents {
+        id
+        fileName
+        title
+        date
+        court
+        caseNumber
+        summary
+        metadata
+        createdAt
+        updatedAt
+    }
+}
+
+# Retrieves a single document by its unique identifier
+# Parameters:
+#   - id (Int!): The unique identifier of the document to fetch
+# Returns: Single Document object with all fields, or null if not found
+# Usage: Use this query when displaying document details or editing a specific document
+query GetDocument($id: Int!) {
+    document(id: $id) {
+        id
+        fileName
+        title
+        date
+        court
+        caseNumber
+        summary
+        metadata
+        createdAt
+        updatedAt
+    }
+}
+
+# Creates a new document record in the database
+# Parameters:
+#   - fileName (String!): Required. The name of the file being uploaded
+#   - title (String): Optional. Human-readable title for the document
+#   - date (DateTime): Optional. The date associated with the document (e.g., creation date, case date)
+#   - court (String): Optional. The court where the case was heard
+#   - caseNumber (String): Optional. The official case number or reference
+#   - summary (String): Optional. Brief description or summary of the document content
+#   - metadata (String): Optional. JSON string containing additional metadata
+# Returns: The newly created Document object with generated id, createdAt, and updatedAt fields
+# Usage: Use this mutation when uploading new documents to the system
+mutation CreateDocument(
+    $fileName: String!
+    $title: String
+    $date: DateTime
+    $court: String
+    $caseNumber: String
+    $summary: String
+    $metadata: String
+) {
+    createDocument(
+        fileName: $fileName
+        title: $title
+        date: $date
+        court: $court
+        caseNumber: $caseNumber
+        summary: $summary
+        metadata: $metadata
+    ) {
+        id
+        fileName
+        title
+        date
+        court
+        caseNumber
+        summary
+        metadata
+        createdAt
+        updatedAt
+    }
+}
+
+# Updates an existing document record with new information
+# Parameters:
+#   - id (Int!): Required. The unique identifier of the document to update
+#   - fileName (String): Optional. Updated file name
+#   - title (String): Optional. Updated document title
+#   - date (DateTime): Optional. Updated document date
+#   - court (String): Optional. Updated court information
+#   - caseNumber (String): Optional. Updated case number
+#   - summary (String): Optional. Updated document summary
+#   - metadata (String): Optional. Updated metadata as JSON string
+# Returns: The updated Document object with modified fields and updated timestamps
+# Usage: Use this mutation to modify existing document information
+# Note: Only provided fields will be updated; omitted fields remain unchanged
+mutation UpdateDocument(
+    $id: Int!
+    $fileName: String
+    $title: String
+    $date: DateTime
+    $court: String
+    $caseNumber: String
+    $summary: String
+    $metadata: String
+) {
+    updateDocument(
+        id: $id
+        fileName: $fileName
+        title: $title
+        date: $date
+        court: $court
+        caseNumber: $caseNumber
+        summary: $summary
+        metadata: $metadata
+    ) {
+        id
+        fileName
+        title
+        date
+        court
+        caseNumber
+        summary
+        metadata
+        createdAt
+        updatedAt
+    }
+}
+
+# Permanently removes a document record from the database
+# Parameters:
+#   - id (Int!): The unique identifier of the document to delete
+# Returns: The deleted Document object (limited fields for confirmation)
+# Usage: Use this mutation to remove documents from the system
+# Warning: This operation is irreversible and will permanently delete the document record
+mutation DeleteDocument($id: Int!) {
+    deleteDocument(id: $id) {
+        id
+        fileName
+        title
+        summary
+    }
+}
+
+# Example usage with variables:
+# {
+#   "id": 1,
+#   "fileName": "2025-appeal.pdf",
+#   "title": "Sample Legal Document",
+#   "date": "2025-01-10T00:00:00.000Z",
+#   "court": "Court of Appeals",
+#   "caseNumber": "CA-2025-00123",
+#   "summary": "This appeal challenges the district court ruling.",
+#   "metadata": "{\"notes\":\"uploaded by QA\"}"
+# }

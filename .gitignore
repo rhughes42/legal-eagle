@@ -13,6 +13,9 @@ dist/
 build/
 *.tsbuildinfo
 
+# TypeScript Compiler Tracing
+tsc-trace/
+
 # Environment
 .env
 .env.*.local
@@ -56,6 +59,7 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 lerna-debug.log*
+*.err
 
 # OS
 .DS_Store
@@ -137,7 +141,6 @@ coverage/
 
 # Local env for editors
 .idea/
-
 .fake
 
 # End of file

@@ -34,43 +34,46 @@ Table of Contents
 
 ## Quick start
 
-Prerequisites:
+1. **Install dependencies**
 
-- Node 18+ and npm
-- Docker & Docker Compose (recommended for running PostgreSQL locally)
+   ```bash
+   npm install
+   ```
 
-Install dependencies:
+2. **Copy and populate your environment file**
 
-```bash
-npm install
-```
+   ```bash
+   cp .env.example .env
+   ```
 
-Create a copy of the example environment file and update values:
+   Update `.env` with your database connection string and any AI model options (see [Environment variables](#environment-variables)).
 
-```bash
-cp .env.example .env
-# then edit .env to set DATABASE_URL and OPENAI_API_KEY
-```
+3. **Run the application**
 
-Start the database and app (development):
+   - Local stack (uses your host Node/Postgres):
 
-```bash
-# using npm
-npm run start:dev
+     ```bash
+     npm run start:dev
+     ```
 
-# or using Docker Compose (if you prefer containers)
-docker compose up --build
-```
+   - Containers (builds the Nest app and Postgres together):
+
+     ```bash
+     docker compose up --build
+     ```
+
+4. **Visit GraphQL Playground / Apollo Sandbox** at `http://localhost:3000/graphql` to explore queries and mutations.
 
 ## Environment variables
 
 Keep secrets out of version control. Typical variables (see `.env.example`):
 
-- DATABASE_URL — Prisma-compatible Postgres connection string
-- OPENAI_API_KEY — (optional) API key for OpenAI
-- NODE_ENV — development|production
+- `DATABASE_URL` – Prisma-compatible Postgres connection string
+- `OPENAI_API_KEY` – optional; enables AI metadata extraction during uploads
+- `MODEL_PRIMARY` – optional; overrides the default `gpt-5` model name sent to OpenAI
+- `NODE_ENV` – `development` or `production`
 
-Create a `.env.example` file if one is not present and include only keys (no secret values).
+Only commit the **keys** (not values) in `.env.example` so teammates know what to configure.
 
 ## Development
 
@@ -86,6 +89,39 @@ Build for production:
 npm run build
 npm run start:prod
 ```
+
+## Uploading documents
+
+1. Ensure the API is running and `OPENAI_API_KEY` is set if you want AI enrichment.
+2. Open Apollo Sandbox (`http://localhost:3000/graphql`) and use the following mutation:
+
+   ```graphql
+   mutation UploadDocument($file: Upload!, $title: String) {
+     uploadDocument(file: $file, title: $title) {
+       id
+       fileName
+       title
+       summary
+       metadata
+     }
+   }
+   ```
+
+   Attach a small PDF or HTML file as the `file` variable. The server streams the file, extracts text, optionally enriches metadata with OpenAI, and returns the stored record.
+
+3. To list all documents:
+
+   ```graphql
+   {
+     documents {
+       id
+       title
+       summary
+     }
+   }
+   ```
+
+If `OPENAI_API_KEY` is missing, the upload still succeeds—logs will note that enrichment was skipped.
 
 ## Database (Prisma)
 
@@ -120,6 +156,8 @@ To run in the background:
 ```bash
 docker compose up -d --build
 ```
+
+The Compose file provisions a Postgres instance and wires the Nest server to it. Update `.env` with the connection string shown in `docker-compose.yml` (typically `postgresql://postgres:postgres@localhost:5432/pandektes` when using the forwarded port).
 
 ## Tests
 

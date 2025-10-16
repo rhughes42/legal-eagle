@@ -1,27 +1,30 @@
--- Sample legal documents for testing
-INSERT INTO "Document" (id, title, content, "sourceUrl", "createdAt", "updatedAt")
+-- Sample legal documents for testing the current schema
+INSERT INTO "Document" ("fileName", "title", "date", "court", "caseNumber", "summary", "metadata")
 VALUES
   (
-    gen_random_uuid(),
+    'employment-contract.pdf',
     'Employment Contract Template',
-    'This Employment Agreement is entered into between [Employer] and [Employee]. The Employee agrees to perform duties as assigned and maintain confidentiality of company information. Compensation shall be $[Amount] per year, payable bi-weekly.',
-    'https://example.com/docs/employment-contract.pdf',
-    NOW(),
-    NOW()
+    '2024-02-01T00:00:00Z',
+    'Superior Court',
+    'EMP-2024-0042',
+    'Employment agreement outlining duties, compensation, and confidentiality.',
+    '{"rawText":"Employment agreement between employer and employee."}'::jsonb
   ),
   (
-    gen_random_uuid(),
-    'Non-Disclosure Agreement',
-    'This Non-Disclosure Agreement (NDA) is made between the Disclosing Party and the Receiving Party. The Receiving Party agrees to maintain strict confidentiality regarding all proprietary information disclosed during the term of this agreement.',
-    'https://example.com/docs/nda.pdf',
-    NOW(),
-    NOW()
+    'mutual-nda.html',
+    'Mutual Non-Disclosure Agreement',
+    '2023-11-15T00:00:00Z',
+    'Chancery Court',
+    'NDA-2023-9981',
+    'Mutual NDA covering proprietary information shared between parties.',
+    '{"rawText":"The receiving party agrees to protect proprietary information."}'::jsonb
   ),
   (
-    gen_random_uuid(),
+    'terms-of-service.pdf',
     'Terms of Service',
-    'By accessing this website, you agree to be bound by these Terms of Service. We reserve the right to modify these terms at any time. Your continued use of the service constitutes acceptance of any changes.',
     NULL,
-    NOW(),
-    NOW()
+    NULL,
+    NULL,
+    'Standard terms of service for a SaaS platform.',
+    '{"rawText":"By accessing this website, you agree to be bound by these terms."}'::jsonb
   );

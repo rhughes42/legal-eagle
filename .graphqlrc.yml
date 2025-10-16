@@ -1,0 +1,12 @@
+schema: ./schema.gql
+documents:
+  - 'src/**/*.graphql'
+  - 'src/**/*.gql'
+  - 'src/**/*.ts'
+exclude:
+  - node_modules/**
+  - dist/**
+  - test/**
+extensions:
+  languageService:
+    cacheSchemaFileForLookup: true
