@@ -138,4 +138,6 @@ coverage/
 # Local env for editors
 .idea/
 
-# End
+.fake
+
+# End of file
