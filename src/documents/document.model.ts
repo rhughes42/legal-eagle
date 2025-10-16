@@ -1,7 +1,7 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, GraphQLISODateTime, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class Document {
+export class DocumentType {
 	@Field(() => ID)
 	id!: string;
 
@@ -14,9 +14,9 @@ export class Document {
 	@Field({ nullable: true })
 	sourceUrl?: string | null;
 
-	@Field()
+	@Field(() => GraphQLISODateTime)
 	createdAt!: Date;
 
-	@Field()
+	@Field(() => GraphQLISODateTime)
 	updatedAt!: Date;
 }

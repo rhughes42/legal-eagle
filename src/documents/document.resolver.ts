@@ -1,11 +1,20 @@
-import { Query, Resolver } from '@nestjs/graphql';
-import { Document } from './document.model';
+import { Args, ID, Query, Resolver } from '@nestjs/graphql';
+import { PrismaService } from '../prisma/prisma.service';
+import { DocumentType } from './document.model';
 
-@Resolver(() => Document)
+@Resolver(() => DocumentType)
 export class DocumentResolver {
-	// Step 2 stub: return no documents until persistence is added.
-	@Query(() => [Document], { name: 'documents' })
-	documents(): Document[] {
-		return [];
+	constructor(private readonly prisma: PrismaService) {}
+
+	@Query(() => [DocumentType], { name: 'documents' })
+	async documents(): Promise<DocumentType[]> {
+		return this.prisma.document.findMany();
+	}
+
+	@Query(() => DocumentType, { name: 'document', nullable: true })
+	async document(
+		@Args('id', { type: () => ID }) id: string,
+	): Promise<DocumentType | null> {
+		return this.prisma.document.findUnique({ where: { id } });
 	}
 }
