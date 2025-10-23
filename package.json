@@ -11,11 +11,15 @@
 		"start:dev": "nest start --watch",
 		"prisma:generate": "prisma generate",
 		"prisma:migrate": "prisma migrate dev",
+		"test": "jest",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-		"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+		"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+		"clean": "node -e \"const fs=require('fs'),p=['dist','node_modules','tsconfig.build.tsbuildinfo','package-lock.json'];for(const x of p){if(fs.existsSync(x)){console.log('removing',x);fs.rmSync(x,{recursive:true,force:true});}}\"",
+		"reinstall": "npm run clean && npm install-clean"
 	},
 	"dependencies": {
 		"@apollo/server": "^5.0.0",
+		"@as-integrations/express5": "^1.1.2",
 		"@nestjs/apollo": "^13.2.1",
 		"@nestjs/common": "^11.0.1",
 		"@nestjs/config": "^4.0.2",
@@ -50,7 +54,7 @@
 		"globals": "^16.0.0",
 		"jest": "^30.0.0",
 		"prettier": "^3.4.2",
-		"prisma": "^5.21.1",
+		"prisma": "^6.18.0",
 		"source-map-support": "^0.5.21",
 		"supertest": "^7.0.0",
 		"ts-jest": "^29.2.5",
@@ -61,13 +65,15 @@
 		"typescript-eslint": "^8.20.0"
 	},
 	"jest": {
+		"testMatch": [
+			"**/*.e2e-spec.ts"
+		],
 		"moduleFileExtensions": [
 			"js",
 			"json",
 			"ts"
 		],
 		"rootDir": "src",
-		"testRegex": ".*\\.spec\\.ts$",
 		"transform": {
 			"^.+\\.(t|j)s$": "ts-jest"
 		},
@@ -76,5 +82,8 @@
 		],
 		"coverageDirectory": "../coverage",
 		"testEnvironment": "node"
+	},
+	"engines": {
+		"node": ">=20 <21"
 	}
 }

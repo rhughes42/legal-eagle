@@ -34,7 +34,7 @@ export class DocumentType {
      * Original name of the uploaded file.
      * Required field that stores the actual filename including extension.
      */
-    @Field()
+    @Field(() => String)
     fileName!: string;
 
     /**
@@ -42,7 +42,7 @@ export class DocumentType {
      * Optional field that provides a descriptive name for the document.
      * Defaults to null if not provided.
      */
-    @Field({ nullable: true })
+    @Field(() => String, { nullable: true })
     title: string | null = null;
 
     /**
@@ -58,7 +58,7 @@ export class DocumentType {
      * Optional field for legal documents that specify jurisdiction.
      * Defaults to null if not provided.
      */
-    @Field({ nullable: true })
+    @Field(() => String, { nullable: true })
     court: string | null = null;
 
     /**
@@ -66,7 +66,7 @@ export class DocumentType {
      * Optional field used to track legal case references.
      * Defaults to null if not provided.
      */
-    @Field({ nullable: true })
+    @Field(() => String, { nullable: true })
     caseNumber: string | null = null;
 
     /**
@@ -74,8 +74,26 @@ export class DocumentType {
      * Optional field providing an overview of the document.
      * Defaults to null if not provided.
      */
-    @Field({ nullable: true })
+    @Field(() => String, { nullable: true })
     summary: string | null = null;
+
+    /**
+     * High-level case classification (e.g., civil, administrative, bankruptcy)
+     */
+    @Field(() => String, { nullable: true })
+    caseType: string | null = null;
+
+    /**
+     * Legal area taxonomy (e.g., produktansvar, miljøret, patentret)
+     */
+    @Field(() => String, { nullable: true })
+    area: string | null = null;
+
+    /**
+     * Area-specific structured data as JSON string (e.g., compensation, costs, patentNumber)
+     */
+    @Field(() => String, { nullable: true })
+    areaData: string | null = null;
 
     /**
      * Additional metadata stored as a JSON string.
@@ -87,7 +105,7 @@ export class DocumentType {
      * {"tags":["appeal","civil"],"priority":"high","notes":"Review required"}
      * ```
      */
-    @Field({ nullable: true })
+    @Field(() => String, { nullable: true })
     metadata: string | null = null; // We can represent JSON as a string in GraphQL for simplicity, or define a JSON scalar
 
     /**

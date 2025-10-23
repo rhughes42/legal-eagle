@@ -120,13 +120,16 @@ export class DocumentResolver {
      */
     @Mutation(() => DocumentType, { name: 'createDocument' })
     async createDocument(
-        @Args('fileName') fileName: string,
-        @Args('title', { nullable: true }) title?: string,
+        @Args('fileName', { type: () => String }) fileName: string,
+        @Args('title', { type: () => String, nullable: true }) title?: string,
         @Args('date', { type: () => GraphQLISODateTime, nullable: true }) date?: Date,
-        @Args('court', { nullable: true }) court?: string,
-        @Args('caseNumber', { nullable: true }) caseNumber?: string,
-        @Args('summary', { nullable: true }) summary?: string,
-        @Args('metadata', { nullable: true }) metadata?: string,
+        @Args('court', { type: () => String, nullable: true }) court?: string,
+        @Args('caseNumber', { type: () => String, nullable: true }) caseNumber?: string,
+        @Args('summary', { type: () => String, nullable: true }) summary?: string,
+        @Args('metadata', { type: () => String, nullable: true }) metadata?: string,
+        @Args('caseType', { type: () => String, nullable: true }) caseType?: string,
+        @Args('area', { type: () => String, nullable: true }) area?: string,
+        @Args('areaData', { type: () => String, nullable: true }) areaData?: string,
     ): Promise<DocumentType> {
         return this.documentsService.createDocument({
             fileName,
@@ -136,6 +139,9 @@ export class DocumentResolver {
             caseNumber,
             summary,
             metadata,
+            caseType,
+            area,
+            areaData,
         });
     }
 
@@ -171,15 +177,29 @@ export class DocumentResolver {
     @Mutation(() => DocumentType, { name: 'updateDocument' })
     async updateDocument(
         @Args('id', { type: () => Int }) id: number,
-        @Args('fileName', { nullable: true }) fileName?: string,
-        @Args('title', { nullable: true }) title?: string | null,
+        @Args('fileName', { type: () => String, nullable: true }) fileName?: string,
+        @Args('title', { type: () => String, nullable: true }) title?: string | null,
         @Args('date', { type: () => GraphQLISODateTime, nullable: true }) date?: Date | null,
-        @Args('court', { nullable: true }) court?: string | null,
-        @Args('caseNumber', { nullable: true }) caseNumber?: string | null,
-        @Args('summary', { nullable: true }) summary?: string | null,
-        @Args('metadata', { nullable: true }) metadata?: string | null,
+        @Args('court', { type: () => String, nullable: true }) court?: string | null,
+        @Args('caseNumber', { type: () => String, nullable: true }) caseNumber?: string | null,
+        @Args('summary', { type: () => String, nullable: true }) summary?: string | null,
+        @Args('metadata', { type: () => String, nullable: true }) metadata?: string | null,
+        @Args('caseType', { type: () => String, nullable: true }) caseType?: string | null,
+        @Args('area', { type: () => String, nullable: true }) area?: string | null,
+        @Args('areaData', { type: () => String, nullable: true }) areaData?: string | null,
     ): Promise<DocumentType> {
-        const updates = { fileName, title, date, court, caseNumber, summary, metadata };
+        const updates = {
+            fileName,
+            title,
+            date,
+            court,
+            caseNumber,
+            summary,
+            metadata,
+            caseType,
+            area,
+            areaData,
+        };
         const payload: Parameters<DocumentService['updateDocument']>[0] = {
             id,
             ...Object.fromEntries(
@@ -272,6 +292,9 @@ export class DocumentResolver {
         @Args('caseNumber', { nullable: true }) caseNumber?: string,
         @Args('summary', { nullable: true }) summary?: string,
         @Args('metadata', { nullable: true }) metadata?: string,
+        @Args('caseType', { nullable: true }) caseType?: string,
+        @Args('area', { nullable: true }) area?: string,
+        @Args('areaData', { nullable: true }) areaData?: string,
     ): Promise<DocumentType> {
         return this.documentsService.handleUpload(file, {
             title,
@@ -280,6 +303,9 @@ export class DocumentResolver {
             caseNumber,
             summary,
             metadata,
+            caseType,
+            area,
+            areaData,
         });
     }
 }

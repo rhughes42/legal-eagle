@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 // Core NestJS imports
 import {
     BadRequestException,
@@ -56,6 +51,9 @@ interface CreateDocumentOptions {
     caseNumber?: string;
     summary?: string;
     metadata?: string;
+    caseType?: string;
+    area?: string;
+    areaData?: string;
 }
 
 /**
@@ -75,6 +73,9 @@ interface UpdateDocumentOptions {
     caseNumber?: string | null;
     summary?: string | null;
     metadata?: string | null;
+    caseType?: string | null;
+    area?: string | null;
+    areaData?: string | null;
 }
 
 /**
@@ -97,6 +98,12 @@ interface AiExtractionResult {
 type FileKind = 'pdf' | 'html' | 'unknown';
 
 // ===== SERVICE IMPLEMENTATION =====
+// Temporary compatibility type until Prisma client is regenerated with new fields
+type PrismaDocumentCompat = PrismaDocument & {
+    caseType?: string | null;
+    area?: string | null;
+    areaData?: Prisma.JsonValue | null;
+};
 
 /**
  * Service for managing legal documents with AI-powered metadata extraction.
@@ -148,17 +155,29 @@ export class DocumentService {
      */
     async createDocument(options: CreateDocumentOptions): Promise<DocumentType> {
         const metadata = this.parseMetadata(options.metadata);
+        const areaData = this.parseAreaData(options.areaData);
+
+        const createData: Record<string, unknown> = {
+            fileName: options.fileName,
+            title: options.title ?? null,
+            date: options.date ?? null,
+            court: options.court ?? null,
+            caseNumber: options.caseNumber ?? null,
+            summary: options.summary ?? null,
+            metadata,
+        };
+
+        // Assign new fields in a way that works before Prisma client is regenerated
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        (createData as any).caseType = options.caseType ?? null;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        (createData as any).area = options.area ?? null;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        (createData as any).areaData = areaData ?? null;
 
         const document = await this.prisma.document.create({
-            data: {
-                fileName: options.fileName,
-                title: options.title ?? null,
-                date: options.date ?? null,
-                court: options.court ?? null,
-                caseNumber: options.caseNumber ?? null,
-                summary: options.summary ?? null,
-                metadata,
-            },
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            data: createData as any,
         });
 
         return this.mapToDocumentType(document);
@@ -202,6 +221,7 @@ export class DocumentService {
 
         // Prepare metadata by merging user input with extraction results
         const metadataInput = this.parseMetadata(options.metadata);
+        const areaDataInput = this.parseAreaData(options.areaData);
         const combinedMetadata = this.mergeMetadata(metadataInput, {
             originalFileName: filename,
             mimeType: mimetype ?? null,
@@ -210,16 +230,25 @@ export class DocumentService {
         });
 
         // Create document with merged data (user input takes precedence over AI)
+        const uploadData: Record<string, unknown> = {
+            fileName: filename,
+            title: options.title ?? aiEnrichment?.fields.title ?? null,
+            date: options.date ?? aiEnrichment?.fields.date ?? null,
+            court: options.court ?? aiEnrichment?.fields.court ?? null,
+            caseNumber: options.caseNumber ?? aiEnrichment?.fields.caseNumber ?? null,
+            summary: options.summary ?? aiEnrichment?.fields.summary ?? null,
+            metadata: combinedMetadata,
+        };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        (uploadData as any).caseType = options.caseType ?? null;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        (uploadData as any).area = options.area ?? null;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        (uploadData as any).areaData = areaDataInput ?? null;
+
         const document = await this.prisma.document.create({
-            data: {
-                fileName: filename,
-                title: options.title ?? aiEnrichment?.fields.title ?? null,
-                date: options.date ?? aiEnrichment?.fields.date ?? null,
-                court: options.court ?? aiEnrichment?.fields.court ?? null,
-                caseNumber: options.caseNumber ?? aiEnrichment?.fields.caseNumber ?? null,
-                summary: options.summary ?? aiEnrichment?.fields.summary ?? null,
-                metadata: combinedMetadata,
-            },
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            data: uploadData as any,
         });
 
         return this.mapToDocumentType(document);
@@ -237,7 +266,7 @@ export class DocumentService {
      * @throws NotFoundException if document doesn't exist
      */
     async updateDocument(options: UpdateDocumentOptions): Promise<DocumentType> {
-        const data: Prisma.DocumentUpdateInput = {};
+        const data: Prisma.DocumentUpdateInput & Record<string, unknown> = {};
 
         // Handle fileName with validation
         if (Object.prototype.hasOwnProperty.call(options, 'fileName')) {
@@ -262,6 +291,16 @@ export class DocumentService {
             data.summary = options.summary ?? null;
         }
 
+        // Handle classification fields
+        if (Object.prototype.hasOwnProperty.call(options, 'caseType')) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            (data as any).caseType = options.caseType ?? null;
+        }
+        if (Object.prototype.hasOwnProperty.call(options, 'area')) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            (data as any).area = options.area ?? null;
+        }
+
         // Handle date field
         if (Object.prototype.hasOwnProperty.call(options, 'date')) {
             data.date = options.date ?? null;
@@ -275,6 +314,20 @@ export class DocumentService {
                 const parsed = this.parseMetadata(options.metadata);
                 if (typeof parsed !== 'undefined') {
                     data.metadata = parsed;
+                }
+            }
+        }
+
+        // Handle areaData JSON
+        if (Object.prototype.hasOwnProperty.call(options, 'areaData')) {
+            if (options.areaData === null) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                (data as any).areaData = Prisma.JsonNull;
+            } else if (typeof options.areaData !== 'undefined') {
+                const parsed = this.parseAreaData(options.areaData);
+                if (typeof parsed !== 'undefined') {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    (data as any).areaData = parsed;
                 }
             }
         }
@@ -334,6 +387,10 @@ export class DocumentService {
         documentType.court = document.court ?? null;
         documentType.caseNumber = document.caseNumber ?? null;
         documentType.summary = document.summary ?? null;
+        const compat = document as unknown as PrismaDocumentCompat;
+        documentType.caseType = compat.caseType ?? null;
+        documentType.area = compat.area ?? null;
+        documentType.areaData = this.stringifyMetadata(compat.areaData ?? null);
         documentType.metadata = this.stringifyMetadata(document.metadata);
         documentType.createdAt = document.createdAt;
         documentType.updatedAt = document.updatedAt;
@@ -373,14 +430,30 @@ export class DocumentService {
      * @throws BadRequestException if JSON is invalid
      */
     private parseMetadata(metadata?: string | null): Prisma.InputJsonValue | undefined {
-        if (!metadata) {
+        return this.parseJsonField('metadata', metadata);
+    }
+
+    /**
+     * Parses string areaData to JSON for database storage
+     */
+    private parseAreaData(areaData?: string | null): Prisma.InputJsonValue | undefined {
+        return this.parseJsonField('areaData', areaData);
+    }
+
+    /**
+     * Generic JSON parser for string fields with custom label
+     */
+    private parseJsonField(
+        label: string,
+        value?: string | null,
+    ): Prisma.InputJsonValue | undefined {
+        if (!value) {
             return undefined;
         }
-
         try {
-            return JSON.parse(metadata) as Prisma.InputJsonValue;
+            return JSON.parse(value) as Prisma.InputJsonValue;
         } catch {
-            throw new BadRequestException('metadata must be valid JSON when provided.');
+            throw new BadRequestException(`${label} must be valid JSON when provided.`);
         }
     }
 

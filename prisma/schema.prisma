@@ -1,197 +1,33 @@
-/**
- * Prisma Database Schema for Pandektes Legal Document Management System
- *
- * This schema defines the database structure for storing and managing legal documents
- * in the Pandektes application. It uses PostgreSQL as the primary database and includes
- * AI-extracted metadata fields for enhanced document classification and searchability.
- *
- * The schema supports:
- * - Document storage with file metadata
- * - AI-powered content extraction and analysis
- * - Legal document classification (court, case numbers, dates)
- * - Flexible metadata storage for future extensibility
- *
- * @version 1.0
- * @database PostgreSQL
- * @generator Prisma Client JS
- */
+// Prisma Database Schema for Pandektes Legal Document Management System
+// PostgreSQL database with AI-extracted metadata for legal documents
 
-/**
- * Database connection configuration
- *
- * Configures PostgreSQL as the primary database provider.
- * The connection URL is loaded from environment variables for security.
- *
- * @provider postgresql - PostgreSQL database engine
- * @url DATABASE_URL environment variable containing connection string
- */
 datasource db {
     provider = "postgresql"
-    url      = env("DATABASE_URL") // PostgreSQL connection string
+    url      = env("DATABASE_URL")
 }
 
-/**
- * Prisma Client generator configuration
- *
- * Generates the TypeScript/JavaScript client library for database operations.
- * This client is used throughout the NestJS application for type-safe database queries.
- *
- * @provider prisma-client-js - JavaScript/TypeScript client generator
- */
 generator client {
     provider = "prisma-client-js"
 }
 
-/**
- * Document Model
- *
- * Represents a legal document in the Pandektes system with both file metadata
- * and AI-extracted legal information. This model stores uploaded documents along
- * with their processed metadata for enhanced searchability and organization.
- *
- * Key Features:
- * - File management (fileName, timestamps)
- * - AI-extracted legal metadata (title, court, case numbers)
- * - Flexible JSON metadata field for extensibility
- * - Automatic timestamp management
- *
- * Usage:
- * - Document upload and storage
- * - Legal document classification
- * - Search and filtering operations
- * - Document management workflows
- *
- * @example
- * ```typescript
- * const document = await prisma.document.create({
- *   data: {
- *     fileName: "appeal-2025-123.pdf",
- *     title: "State v. Smith Appeal",
- *     court: "Court of Appeals",
- *     caseNumber: "CA-2025-00123",
- *     date: new Date("2025-01-15"),
- *     summary: "Criminal appeal challenging evidence admissibility"
- *   }
- * });
- * ```
- */
+// Legal document with AI-extracted metadata
 model Document {
-    /**
-     * Primary key identifier
-     *
-     * Auto-incrementing integer that uniquely identifies each document record.
-     * Used for database relationships and API operations.
-     *
-     * @type Int
-     * @constraint Primary Key, Auto-increment
-     */
     id         Int       @id @default(autoincrement())
+    fileName   String // Original uploaded filename
+    title      String? // AI-extracted document title
+    date       DateTime? // AI-extracted document date (filing, judgment, etc.)
+    court      String? // AI-extracted court or jurisdiction
+    caseNumber String? // AI-extracted case or docket number
+    summary    String? // AI-generated document summary
+    // High-level classification
+    caseType   String? // e.g., civil, injunction, administrative, bankruptcy, human rights
+    area       String? // e.g., produktansvar, miljøret, state aid, lejeret, konkursret, freedom of expression, forsikringsret, patentret
 
-    /**
-     * Original uploaded file name
-     *
-     * Stores the original filename including extension as provided during upload.
-     * Required field used for file identification and download operations.
-     *
-     * @type String
-     * @constraint Not Null
-     * @example "legal-brief-2025.pdf", "court-order.html"
-     */
-    fileName   String
+    // Area-specific details (flexible key/value JSON data, e.g., compensation, patentNumber, costs, debtAmount)
+    areaData Json?
 
-    /**
-     * Document title (AI-extracted)
-     *
-     * Human-readable title extracted from document content using AI processing.
-     * Optional field that provides semantic identification of the document.
-     *
-     * @type String (nullable)
-     * @source AI content extraction
-     * @example "Motion for Summary Judgment", "Appellate Brief"
-     */
-    title      String? // Document title (extracted by AI)
-
-    /**
-     * Document date (AI-extracted)
-     *
-     * Date associated with the legal document, typically extracted from content.
-     * Could represent judgment date, filing date, or other legally significant dates.
-     *
-     * @type DateTime (nullable)
-     * @source AI content extraction
-     * @example Filing date, judgment date, hearing date
-     */
-    date       DateTime? // Date of the document (could be judgment date, etc.)
-
-    /**
-     * Court or jurisdiction (AI-extracted)
-     *
-     * Legal jurisdiction or court name extracted from document content.
-     * Used for organizing documents by legal authority and jurisdiction.
-     *
-     * @type String (nullable)
-     * @source AI content extraction
-     * @example "Supreme Court", "Court of Appeals", "District Court"
-     */
-    court      String? // Court or jurisdiction
-
-    /**
-     * Case or docket number (AI-extracted)
-     *
-     * Legal case identifier extracted from document content.
-     * Critical for legal document organization and case management.
-     *
-     * @type String (nullable)
-     * @source AI content extraction
-     * @example "2025-CV-1234", "CA-2024-00567", "SC-2025-CIV-890"
-     */
-    caseNumber String? // Case or docket number
-
-    /**
-     * Document summary (AI-generated)
-     *
-     * Concise summary of document content generated through AI analysis.
-     * Provides quick overview for document browsing and search results.
-     *
-     * @type String (nullable)
-     * @source AI content analysis
-     * @maxLength Typically 500-1000 characters
-     */
-    summary    String? // Short summary of the document
-
-    /**
-     * Additional metadata (flexible storage)
-     *
-     * JSON field for storing additional document metadata, raw AI output,
-     * or future extensibility data. Provides flexibility for evolving requirements.
-     *
-     * @type Json (nullable)
-     * @usage Raw AI responses, custom tags, processing flags
-     * @example {"confidence": 0.95, "language": "en", "pages": 15}
-     */
-    metadata   Json? // Additional metadata or raw AI output (if any)
-
-    /**
-     * Record creation timestamp
-     *
-     * Automatically set timestamp when the document record is first created.
-     * Used for audit trails and chronological organization.
-     *
-     * @type DateTime
-     * @default Current timestamp
-     * @constraint Not Null, Auto-generated
-     */
-    createdAt  DateTime  @default(now())
-
-    /**
-     * Record update timestamp
-     *
-     * Automatically updated timestamp whenever the document record is modified.
-     * Tracks the last modification time for audit and synchronization purposes.
-     *
-     * @type DateTime
-     * @behavior Auto-update on modification
-     * @constraint Not Null, Auto-managed
-     */
-    updatedAt  DateTime  @updatedAt
+    // Additional metadata and raw AI output
+    metadata  Json?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
