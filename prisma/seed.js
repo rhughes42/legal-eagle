@@ -18,17 +18,42 @@ async function main() {
     process.exit(1)
   }
 
-  console.log('Running seed SQL from', sqlPath)
-  try {
-    // Use $executeRawUnsafe to run raw SQL from the seed file.
-    // This file contains INSERT statements for the Document table.
-    await prisma.$executeRawUnsafe(sql)
-    console.log('Seeding complete.')
-  } catch (err) {
-    console.error('Failed to execute seed SQL:', err)
-    process.exitCode = 1
-  } finally {
+  // Confirmation: require explicit --force or --yes to avoid accidental runs
+  const force = process.argv.includes('--force') || process.argv.includes('--yes') || process.argv.includes('-y')
+
+  async function doSeed() {
+    console.log('Running seed SQL from', sqlPath)
+    try {
+      await prisma.$executeRawUnsafe(sql)
+      console.log('Seeding complete.')
+    } catch (err) {
+      console.error('Failed to execute seed SQL:', err)
+      process.exitCode = 1
+    } finally {
+      await prisma.$disconnect()
+    }
+  }
+
+  if (force) {
+    await doSeed()
+    return
+  }
+
+  // Interactive confirmation when possible
+  if (process.stdin.isTTY) {
+    const rl = require('readline').createInterface({ input: process.stdin, output: process.stdout })
+    const answer = await new Promise((resolve) => rl.question('This will execute SQL against your database. Type "yes" to continue: ', (ans) => { rl.close(); resolve(ans) }))
+    if (String(answer).trim().toLowerCase() === 'yes') {
+      await doSeed()
+    } else {
+      console.log('Seed aborted.')
+      await prisma.$disconnect()
+      process.exit(0)
+    }
+  } else {
+    console.error('Non-interactive shell detected. To run the seed, pass --force or run in an interactive terminal.')
     await prisma.$disconnect()
+    process.exit(1)
   }
 }
 
