@@ -1,6 +1,6 @@
-import { Controller, Get, HttpStatus } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ApiOverview, AppService } from './app.service';
+import { Controller, Get, HttpStatus } from '@nestjs/common'
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiOverview, AppService } from './app.service'
 
 /**
  * AppController - Main Application Controller
@@ -154,6 +154,6 @@ export class AppController {
         },
     })
     getOverview(): ApiOverview {
-        return this.appService.getOverview();
+        return this.appService.getOverview()
     }
 }

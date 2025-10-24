@@ -1,5 +1,5 @@
-import { Injectable, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Injectable, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common'
+import { PrismaClient } from '@prisma/client'
 
 /**
  * PrismaService provides a centralized database connection service for the application.
@@ -30,8 +30,8 @@ import { PrismaClient } from '@prisma/client';
  */
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
-    private readonly logger = new Logger(PrismaService.name);
-    private isConnected = false;
+    private readonly logger = new Logger(PrismaService.name)
+    private isConnected = false
 
     constructor() {
         super({
@@ -42,13 +42,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                 },
             },
             // Enable query logging in development
-            log:
-                process.env.NODE_ENV === 'development'
-                    ? ['query', 'info', 'warn', 'error']
-                    : ['error'],
+            log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['error'],
             // Configure error formatting
             errorFormat: 'pretty',
-        });
+        })
     }
 
     /**
@@ -68,41 +65,34 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
      * ```
      */
     async onModuleInit(): Promise<void> {
-        const maxRetries = 3;
-        const retryDelay = 2000; // 2 seconds
+        const maxRetries = 3
+        const retryDelay = 2000 // 2 seconds
 
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
-                this.logger.log(
-                    `Attempting to connect to database (attempt ${attempt}/${maxRetries})...`,
-                );
+                this.logger.log(`Attempting to connect to database (attempt ${attempt}/${maxRetries})...`)
 
-                await this.$connect();
+                await this.$connect()
 
                 // Verify connection with a simple query
-                await this.$queryRaw`SELECT 1`;
+                await this.$queryRaw`SELECT 1`
 
-                this.isConnected = true;
-                this.logger.log('Successfully connected to database');
-                return;
+                this.isConnected = true
+                this.logger.log('Successfully connected to database')
+                return
             } catch (error) {
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                const errorStack = error instanceof Error ? error.stack : undefined;
+                const errorMessage = error instanceof Error ? error.message : String(error)
+                const errorStack = error instanceof Error ? error.stack : undefined
 
-                this.logger.error(
-                    `Database connection attempt ${attempt} failed: ${errorMessage}`,
-                    errorStack,
-                );
+                this.logger.error(`Database connection attempt ${attempt} failed: ${errorMessage}`, errorStack)
 
                 if (attempt === maxRetries) {
-                    this.logger.error('All database connection attempts failed');
-                    throw new Error(
-                        `Failed to connect to database after ${maxRetries} attempts: ${errorMessage}`,
-                    );
+                    this.logger.error('All database connection attempts failed')
+                    throw new Error(`Failed to connect to database after ${maxRetries} attempts: ${errorMessage}`)
                 }
 
                 // Wait before retrying
-                await new Promise((resolve) => setTimeout(resolve, retryDelay));
+                await new Promise((resolve) => setTimeout(resolve, retryDelay))
             }
         }
     }
@@ -125,14 +115,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     async onModuleDestroy(): Promise<void> {
         try {
             if (this.isConnected) {
-                this.logger.log('Disconnecting from database...');
-                await this.$disconnect();
-                this.isConnected = false;
-                this.logger.log('Successfully disconnected from database');
+                this.logger.log('Disconnecting from database...')
+                await this.$disconnect()
+                this.isConnected = false
+                this.logger.log('Successfully disconnected from database')
             }
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            this.logger.error('Error during database disconnection:', errorMessage);
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            this.logger.error('Error during database disconnection:', errorMessage)
             // Don't throw here as it's during shutdown
         }
     }
@@ -156,12 +146,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
      */
     async isHealthy(): Promise<boolean> {
         try {
-            await this.$queryRaw`SELECT 1`;
-            return true;
+            await this.$queryRaw`SELECT 1`
+            return true
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            this.logger.error('Database health check failed:', errorMessage);
-            return false;
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            this.logger.error('Database health check failed:', errorMessage)
+            return false
         }
     }
 
@@ -184,19 +174,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
      * ]);
      * ```
      */
-    async executeTransaction<T>(
-        fn: Parameters<PrismaClient['$transaction']>[0],
-        options?: Parameters<PrismaClient['$transaction']>[1],
-    ): Promise<T> {
+    async executeTransaction<T>(fn: Parameters<PrismaClient['$transaction']>[0], options?: Parameters<PrismaClient['$transaction']>[1]): Promise<T> {
         try {
-            this.logger.debug('Starting database transaction');
-            const result = await this.$transaction(fn, options);
-            this.logger.debug('Database transaction completed successfully');
-            return result as T;
+            this.logger.debug('Starting database transaction')
+            const result = await this.$transaction(fn, options)
+            this.logger.debug('Database transaction completed successfully')
+            return result as T
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            this.logger.error('Database transaction failed:', errorMessage);
-            throw error;
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            this.logger.error('Database transaction failed:', errorMessage)
+            throw error
         }
     }
 
@@ -213,6 +200,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
      * ```
      */
     getConnectionStatus(): boolean {
-        return this.isConnected;
+        return this.isConnected
     }
 }

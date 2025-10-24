@@ -1,4 +1,4 @@
-import { ObjectType, Field, Int, GraphQLISODateTime } from '@nestjs/graphql';
+import { ObjectType, Field, Int, GraphQLISODateTime } from '@nestjs/graphql'
 
 /**
  * GraphQL ObjectType representing a legal document in the Pandektes system.
@@ -28,14 +28,14 @@ export class DocumentType {
      * Auto-generated primary key used for database operations and GraphQL queries.
      */
     @Field(() => Int)
-    id!: number;
+    id!: number
 
     /**
      * Original name of the uploaded file.
      * Required field that stores the actual filename including extension.
      */
     @Field(() => String)
-    fileName!: string;
+    fileName!: string
 
     /**
      * Human-readable title for the document.
@@ -43,7 +43,7 @@ export class DocumentType {
      * Defaults to null if not provided.
      */
     @Field(() => String, { nullable: true })
-    title: string | null = null;
+    title: string | null = null
 
     /**
      * Date associated with the document (e.g., creation date, case date).
@@ -51,7 +51,7 @@ export class DocumentType {
      * Defaults to null if not provided.
      */
     @Field(() => GraphQLISODateTime, { nullable: true })
-    date: Date | null = null;
+    date: Date | null = null
 
     /**
      * Name of the court where the case was heard.
@@ -59,7 +59,7 @@ export class DocumentType {
      * Defaults to null if not provided.
      */
     @Field(() => String, { nullable: true })
-    court: string | null = null;
+    court: string | null = null
 
     /**
      * Official case number or reference identifier.
@@ -67,7 +67,7 @@ export class DocumentType {
      * Defaults to null if not provided.
      */
     @Field(() => String, { nullable: true })
-    caseNumber: string | null = null;
+    caseNumber: string | null = null
 
     /**
      * Brief description or summary of the document content.
@@ -75,25 +75,25 @@ export class DocumentType {
      * Defaults to null if not provided.
      */
     @Field(() => String, { nullable: true })
-    summary: string | null = null;
+    summary: string | null = null
 
     /**
      * High-level case classification (e.g., civil, administrative, bankruptcy)
      */
     @Field(() => String, { nullable: true })
-    caseType: string | null = null;
+    caseType: string | null = null
 
     /**
      * Legal area taxonomy (e.g., produktansvar, miljøret, patentret)
      */
     @Field(() => String, { nullable: true })
-    area: string | null = null;
+    area: string | null = null
 
     /**
      * Area-specific structured data as JSON string (e.g., compensation, costs, patentNumber)
      */
     @Field(() => String, { nullable: true })
-    areaData: string | null = null;
+    areaData: string | null = null
 
     /**
      * Additional metadata stored as a JSON string.
@@ -106,14 +106,14 @@ export class DocumentType {
      * ```
      */
     @Field(() => String, { nullable: true })
-    metadata: string | null = null; // We can represent JSON as a string in GraphQL for simplicity, or define a JSON scalar
+    metadata: string | null = null // We can represent JSON as a string in GraphQL for simplicity, or define a JSON scalar
 
     /**
      * Timestamp when the document record was first created.
      * Automatically set by the system and stored in ISO DateTime format.
      */
     @Field(() => GraphQLISODateTime)
-    createdAt!: Date;
+    createdAt!: Date
 
     /**
      * Timestamp when the document record was last modified.
@@ -121,5 +121,5 @@ export class DocumentType {
      * Stored in ISO DateTime format.
      */
     @Field(() => GraphQLISODateTime)
-    updatedAt!: Date;
+    updatedAt!: Date
 }

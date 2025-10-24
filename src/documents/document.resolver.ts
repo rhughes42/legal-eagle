@@ -1,7 +1,7 @@
-import { Args, GraphQLISODateTime, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { FileUpload, GraphQLUpload } from 'graphql-upload';
-import { DocumentType } from './document.model';
-import { DocumentService } from './document.service';
+import { Args, GraphQLISODateTime, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { FileUpload, GraphQLUpload } from 'graphql-upload'
+import { DocumentType } from './document.model'
+import { DocumentService } from './document.service'
 
 /**
  * GraphQL resolver for document-related operations in the Pandektes legal document system.
@@ -61,7 +61,7 @@ export class DocumentResolver {
      */
     @Query(() => [DocumentType], { name: 'documents' })
     async documents(): Promise<DocumentType[]> {
-        return this.documentsService.getAllDocuments();
+        return this.documentsService.getAllDocuments()
     }
 
     /**
@@ -87,7 +87,7 @@ export class DocumentResolver {
      */
     @Query(() => DocumentType, { name: 'document', nullable: true })
     async document(@Args('id', { type: () => Int }) id: number): Promise<DocumentType | null> {
-        return this.documentsService.getDocumentById(id);
+        return this.documentsService.getDocumentById(id)
     }
 
     /**
@@ -142,7 +142,7 @@ export class DocumentResolver {
             caseType,
             area,
             areaData,
-        });
+        })
     }
 
     /**
@@ -199,15 +199,13 @@ export class DocumentResolver {
             caseType,
             area,
             areaData,
-        };
+        }
         const payload: Parameters<DocumentService['updateDocument']>[0] = {
             id,
-            ...Object.fromEntries(
-                Object.entries(updates).filter(([, value]) => typeof value !== 'undefined'),
-            ),
-        };
+            ...Object.fromEntries(Object.entries(updates).filter(([, value]) => typeof value !== 'undefined')),
+        }
 
-        return this.documentsService.updateDocument(payload);
+        return this.documentsService.updateDocument(payload)
     }
 
     /**
@@ -236,7 +234,7 @@ export class DocumentResolver {
      */
     @Mutation(() => DocumentType, { name: 'deleteDocument' })
     async deleteDocument(@Args('id', { type: () => Int }) id: number): Promise<DocumentType> {
-        return this.documentsService.deleteDocument(id);
+        return this.documentsService.deleteDocument(id)
     }
 
     /**
@@ -306,7 +304,7 @@ export class DocumentResolver {
             caseType,
             area,
             areaData,
-        });
+        })
     }
 }
 

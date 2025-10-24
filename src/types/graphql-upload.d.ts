@@ -13,11 +13,11 @@ declare module 'graphql-upload' {
      * Value exports from the graphql-upload package.
      * These are the main runtime components for handling file uploads.
      */
-    export { default as GraphQLUpload } from 'graphql-upload/GraphQLUpload.mjs';
-    export { default as Upload } from 'graphql-upload/Upload.mjs';
-    export { default as graphqlUploadExpress } from 'graphql-upload/graphqlUploadExpress.mjs';
-    export { default as graphqlUploadKoa } from 'graphql-upload/graphqlUploadKoa.mjs';
-    export { default as processRequest } from 'graphql-upload/processRequest.mjs';
+    export { default as GraphQLUpload } from 'graphql-upload/GraphQLUpload.mjs'
+    export { default as Upload } from 'graphql-upload/Upload.mjs'
+    export { default as graphqlUploadExpress } from 'graphql-upload/graphqlUploadExpress.mjs'
+    export { default as graphqlUploadKoa } from 'graphql-upload/graphqlUploadKoa.mjs'
+    export { default as processRequest } from 'graphql-upload/processRequest.mjs'
 
     /**
      * Type exports from the graphql-upload package.
@@ -38,5 +38,5 @@ declare module 'graphql-upload' {
         // Middleware
         ProcessRequestFunction,
         ProcessRequestOptions,
-    } from 'graphql-upload/processRequest.mjs';
+    } from 'graphql-upload/processRequest.mjs'
 }

@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { DocumentResolver } from './document.resolver';
-import { DocumentService } from './document.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { Module } from '@nestjs/common'
+import { DocumentResolver } from './document.resolver'
+import { DocumentService } from './document.service'
+import { PrismaService } from '../prisma/prisma.service'
 
 /**
  * DocumentsModule - Legal Document Management Module for Pandektes System

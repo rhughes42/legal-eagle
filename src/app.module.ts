@@ -1,12 +1,12 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { GraphQLModule } from '@nestjs/graphql';
-import { Request, Response } from 'express';
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
+import { GraphQLModule } from '@nestjs/graphql'
+import { Request, Response } from 'express'
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { DocumentsModule } from './documents/documents.module';
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import { DocumentsModule } from './documents/documents.module'
 
 /**
  * GraphQL Configuration Factory
@@ -35,7 +35,7 @@ function createGraphQLConfig(): ApolloDriverConfig {
             code: error.extensions?.code,
             path: error.path,
         }),
-    };
+    }
 }
 
 /**
