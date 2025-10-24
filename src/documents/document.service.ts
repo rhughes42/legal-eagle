@@ -533,6 +533,7 @@ export class DocumentService {
                 },
             })
 
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
             const parsed = response.output_parsed as DocumentExtraction | null
             if (!parsed) {
                 this.logger.warn('OpenAI structured response returned no parsed payload.')
