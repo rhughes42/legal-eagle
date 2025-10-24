@@ -24,14 +24,6 @@ tsc-trace/
 .env.test.local
 .env.production.local
 
-# Prisma
-/prisma/dev.db
-/prisma/.env
-prisma/migrations/**/migration.sql
-prisma/migrations/**/migration_lock.toml
-.prisma/
-.prisma-client/
-
 # Database
 *.sqlite
 *.sqlite3
@@ -41,17 +33,6 @@ prisma/migrations/**/migration_lock.toml
 # PostgreSQL
 pgdata/
 *.psql
-
-# Docker
-**/docker-compose.override.yml
-**/docker-compose.*.yml
-docker-compose.yml
-docker-compose.*.yml
-Dockerfile
-Dockerfile.*
-docker/*.log
-docker/**/tmp/
-/volumes/
 
 # Logs
 logs/
