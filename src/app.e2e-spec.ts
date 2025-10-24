@@ -1,9 +1,45 @@
-import { INestApplication } from '@nestjs/common'
+import type { INestApplication } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
+import type { Response } from 'supertest'
 import request from 'supertest'
 
 import { AppModule } from './app.module'
 import { PrismaService } from './prisma/prisma.service'
+
+interface GraphQLResponse<T = unknown> {
+    data?: T
+    errors?: Array<{ message: string }>
+}
+
+interface DocumentsQueryResponse {
+    documents: Array<{
+        id: number
+        fileName: string
+        title: string | null
+    }>
+}
+
+interface DocumentQueryResponse {
+    document: {
+        id: number
+        fileName: string
+        title: string | null
+    } | null
+}
+
+interface CreateDocumentResponse {
+    createDocument: {
+        id: number
+        fileName: string
+        title: string | null
+    }
+}
+
+interface DeleteDocumentResponse {
+    deleteDocument: {
+        id: number
+    }
+}
 
 describe('GraphQL Documents API (integration)', () => {
     let app: INestApplication
@@ -28,7 +64,7 @@ describe('GraphQL Documents API (integration)', () => {
     })
 
     it('returns the current document list', async () => {
-        const response = await request(app.getHttpServer())
+        const response: Response = await request(app.getHttpServer())
             .post('/graphql')
             .send({
                 query: /* GraphQL */ `
@@ -43,20 +79,24 @@ describe('GraphQL Documents API (integration)', () => {
             })
 
         expect(response.status).toBe(200)
-        expect(response.body.errors).toBeUndefined()
+        const body = response.body as GraphQLResponse<DocumentsQueryResponse>
+        expect(body.errors).toBeUndefined()
 
-        const documents = response.body.data?.documents
+        const documents = body.data?.documents
         expect(Array.isArray(documents)).toBe(true)
-        expect(documents.length).toBeGreaterThan(0)
-        expect(documents[0]).toHaveProperty('id')
-        expect(documents[0]).toHaveProperty('fileName')
+        expect(documents).toBeDefined()
+        if (documents) {
+            expect(documents.length).toBeGreaterThan(0)
+            expect(documents[0]).toHaveProperty('id')
+            expect(documents[0]).toHaveProperty('fileName')
+        }
     })
 
     it('fetches a single document by id', async () => {
         const existing = await prisma.document.findFirst()
         expect(existing).toBeTruthy()
 
-        const response = await request(app.getHttpServer())
+        const response: Response = await request(app.getHttpServer())
             .post('/graphql')
             .send({
                 query: /* GraphQL */ `
@@ -74,9 +114,10 @@ describe('GraphQL Documents API (integration)', () => {
             })
 
         expect(response.status).toBe(200)
-        expect(response.body.errors).toBeUndefined()
+        const body = response.body as GraphQLResponse<DocumentQueryResponse>
+        expect(body.errors).toBeUndefined()
 
-        const document = response.body.data?.document
+        const document = body.data?.document
         expect(document).toBeDefined()
         expect(document).toMatchObject({
             id: existing!.id,
@@ -85,7 +126,7 @@ describe('GraphQL Documents API (integration)', () => {
     })
 
     it('creates and deletes a document via mutations', async () => {
-        const createResponse = await request(app.getHttpServer())
+        const createResponse: Response = await request(app.getHttpServer())
             .post('/graphql')
             .send({
                 query: /* GraphQL */ `
@@ -104,13 +145,17 @@ describe('GraphQL Documents API (integration)', () => {
             })
 
         expect(createResponse.status).toBe(200)
-        expect(createResponse.body.errors).toBeUndefined()
+        const createBody = createResponse.body as GraphQLResponse<CreateDocumentResponse>
+        expect(createBody.errors).toBeUndefined()
 
-        const created = createResponse.body.data?.createDocument
+        const created = createBody.data?.createDocument
         expect(created).toBeDefined()
+        if (!created) {
+            throw new Error('Document was not created')
+        }
         expect(created.fileName).toBe('integration-test.pdf')
 
-        const deleteResponse = await request(app.getHttpServer())
+        const deleteResponse: Response = await request(app.getHttpServer())
             .post('/graphql')
             .send({
                 query: /* GraphQL */ `
@@ -126,8 +171,9 @@ describe('GraphQL Documents API (integration)', () => {
             })
 
         expect(deleteResponse.status).toBe(200)
-        expect(deleteResponse.body.errors).toBeUndefined()
-        expect(deleteResponse.body.data?.deleteDocument?.id).toBe(created.id)
+        const deleteBody = deleteResponse.body as GraphQLResponse<DeleteDocumentResponse>
+        expect(deleteBody.errors).toBeUndefined()
+        expect(deleteBody.data?.deleteDocument?.id).toBe(created.id)
 
         const record = await prisma.document.findUnique({
             where: {
