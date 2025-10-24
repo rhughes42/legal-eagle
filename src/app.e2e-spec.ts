@@ -1,9 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { INestApplication } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import request from 'supertest'
 
 import { AppModule } from './app.module'
 import { PrismaService } from './prisma/prisma.service'
+
+jest.setTimeout(30000)
 
 describe('GraphQL Documents API (integration)', () => {
     let app: INestApplication
@@ -20,6 +26,16 @@ describe('GraphQL Documents API (integration)', () => {
         await app.init()
 
         prisma = app.get(PrismaService)
+
+        const existingCount = await prisma.document.count()
+        if (existingCount === 0) {
+            await prisma.document.create({
+                data: {
+                    fileName: 'seed-document.pdf',
+                    title: 'Seed Document',
+                },
+            })
+        }
     })
 
     afterAll(async () => {

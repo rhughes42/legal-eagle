@@ -45,7 +45,7 @@ export class DocumentType {
 
     /** Optional metadata as JSON string. */
     @Field(() => String, { nullable: true })
-    metadata: string | null = null // We can represent JSON as a string in GraphQL for simplicity, or define a JSON scalar
+    metadata: string | null = null
 
     /** Creation timestamp (ISO). */
     @Field(() => GraphQLISODateTime)

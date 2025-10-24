@@ -8,9 +8,10 @@ import type { Document as PrismaDocument } from '@prisma/client'
 // External library imports
 import { load as loadHtml } from 'cheerio'
 import OpenAI from 'openai'
+import { zodTextFormat } from 'openai/helpers/zod'
 import pdfParse from 'pdf-parse'
-import type { ChatCompletion } from 'openai/resources'
 import type { FileUpload } from 'graphql-upload'
+import { z } from 'zod'
 
 // Node.js imports
 import { extname } from 'node:path'
@@ -82,6 +83,9 @@ interface AiExtractionResult {
         court: string | null
         caseNumber: string | null
         summary: string | null
+        caseType: string | null
+        area: string | null
+        areaData: object | null
     }
     json: Record<string, unknown>
 }
@@ -109,7 +113,7 @@ type FileKind = 'pdf' | 'html' | 'unknown'
 type PrismaDocumentCompat = PrismaDocument & {
     caseType?: string | null
     area?: string | null
-    areaData?: Prisma.JsonValue | null
+    areaData?: object | null
 }
 
 /**
@@ -240,14 +244,13 @@ export class DocumentService {
             caseNumber: options.caseNumber ?? aiEnrichment?.fields.caseNumber ?? null,
             summary: options.summary ?? aiEnrichment?.fields.summary ?? null,
             metadata: combinedMetadata,
-        }(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            uploadData as any,
-        ).caseType = options.caseType ?? null)
+        }
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        ;(uploadData as any).area = options.area ?? null
+        ;(uploadData as any).caseType = options.caseType ?? aiEnrichment?.fields.caseType ?? null
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        ;(uploadData as any).areaData = areaDataInput ?? null
+        ;(uploadData as any).area = options.area ?? aiEnrichment?.fields.area ?? null
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        ;(uploadData as any).areaData = typeof areaDataInput !== 'undefined' ? areaDataInput : (aiEnrichment?.fields.areaData ?? null)
 
         const document = await this.prisma.document.create({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -505,7 +508,7 @@ export class DocumentService {
         }
 
         const client = this.getOpenAiClient(apiKey)
-        const model = process.env.MODEL_PRIMARY ?? 'gpt-4'
+        const model = process.env.OPENAI_CHAT_MODEL ?? process.env.MODEL_PRIMARY ?? 'gpt-4.1-mini'
         const prompt = this.buildExtractionPrompt(rawText)
 
         try {
@@ -514,24 +517,26 @@ export class DocumentService {
                 input: [
                     {
                         role: 'system',
-                        content: 'You extract concise metadata from legal documents. Respond with ONLY valid JSON.',
+                        content:
+                            'You are an expert at structured data extraction for legal documents. Fill in each field when confident and use null when a field cannot be determined.',
                     },
                     {
                         role: 'user',
                         content: prompt,
                     },
                 ],
+                text: {
+                    format: zodTextFormat(DocumentExtractionSchema, 'document_extraction'),
+                },
             })
 
-            const aiText = response.choices?.[0]?.message?.content ?? ''
-            const jsonObject = this.safeExtractJson(aiText)
-
-            if (!jsonObject) {
-                this.logger.warn('OpenAI response contained no parsable JSON metadata.')
+            const parsed = response.output_parsed as DocumentExtraction | null
+            if (!parsed) {
+                this.logger.warn('OpenAI structured response returned no parsed payload.')
                 return null
             }
 
-            return this.mapAiExtraction(jsonObject)
+            return this.mapAiExtraction(parsed)
         } catch (error) {
             this.logger.error('Failed to enrich metadata via OpenAI.', error as Error)
             return null
@@ -589,50 +594,35 @@ export class DocumentService {
      * @param content - Raw AI response content
      * @returns Parsed JSON object or null if no valid JSON found
      */
-    private safeExtractJson(content: string): Record<string, unknown> | null {
-        const start = content.indexOf('{')
-        if (start === -1) {
-            return null
-        }
-
-        let depth = 0
-        for (let i = start; i < content.length; i += 1) {
-            const char = content[i]
-            if (char === '{') {
-                depth += 1
-            } else if (char === '}') {
-                depth -= 1
-                if (depth === 0) {
-                    const snippet = content.slice(start, i + 1)
-                    try {
-                        const parsed = JSON.parse(snippet) as unknown
-                        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                            return parsed as Record<string, unknown>
-                        }
-                    } catch {
-                        // Continue searching for next JSON candidate
-                    }
-                }
-            }
-        }
-
-        return null
-    }
-
     /**
-     * Maps raw AI extraction JSON to structured result
+     * Maps the structured OpenAI response to the internal extraction format.
      *
-     * Validates and coerces AI response fields to expected types.
-     *
-     * @param json - Raw JSON from AI response
+     * @param extraction - Parsed payload returned by OpenAI structured outputs
      * @returns Structured extraction result
      */
-    private mapAiExtraction(json: Record<string, unknown>): AiExtractionResult {
-        const title = this.coerceString(json.title)
-        const court = this.coerceString(json.court)
-        const caseNumber = this.coerceString(json.caseNumber)
-        const summary = this.coerceString(json.summary)
-        const date = this.coerceDate(json.date)
+    private mapAiExtraction(extraction: DocumentExtraction): AiExtractionResult {
+        const title = this.coerceString(extraction.title)
+        const court = this.coerceString(extraction.court)
+        const caseNumber = this.coerceString(extraction.caseNumber)
+        const summary = this.coerceString(extraction.summary)
+        const caseType = this.coerceString(extraction.caseType)
+        const area = this.coerceString(extraction.area)
+        const date = this.coerceDate(extraction.date)
+        const rawDate = typeof extraction.date === 'string' && extraction.date.trim().length > 0 ? extraction.date.trim() : null
+        const areaData = (extraction.areaData ?? null) as Prisma.JsonValue | null
+        const metadata = (extraction.metadata ?? null) as Prisma.JsonValue | null
+
+        const jsonPayload: Record<string, unknown> = {
+            title,
+            date: rawDate,
+            court,
+            caseNumber,
+            summary,
+            caseType,
+            area,
+            areaData,
+            metadata,
+        }
 
         return {
             fields: {
@@ -645,7 +635,7 @@ export class DocumentService {
                 area,
                 areaData,
             },
-            json,
+            json: jsonPayload,
         }
     }
 
