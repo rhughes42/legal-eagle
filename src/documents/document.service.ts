@@ -236,7 +236,7 @@ export class DocumentService {
         })
 
         // Create document with merged data (user input takes precedence over AI)
-        const uploadData: Record<string, unknown> = {
+        const uploadData: Record<string, unknown> = ({
             fileName: filename,
             title: options.title ?? aiEnrichment?.fields.title ?? null,
             date: options.date ?? aiEnrichment?.fields.date ?? null,

@@ -44,7 +44,7 @@ describe('GraphQL Documents API (integration)', () => {
     })
 
     it('returns the current document list', async () => {
-        const response = await request(app.getHttpServer())
+        const response: Response = await request(app.getHttpServer())
             .post('/graphql')
             .send({
                 query: /* GraphQL */ `
@@ -72,7 +72,7 @@ describe('GraphQL Documents API (integration)', () => {
         const existing = await prisma.document.findFirst()
         expect(existing).toBeTruthy()
 
-        const response = await request(app.getHttpServer())
+        const response: Response = await request(app.getHttpServer())
             .post('/graphql')
             .send({
                 query: /* GraphQL */ `
@@ -101,7 +101,7 @@ describe('GraphQL Documents API (integration)', () => {
     })
 
     it('creates and deletes a document via mutations', async () => {
-        const createResponse = await request(app.getHttpServer())
+        const createResponse: Response = await request(app.getHttpServer())
             .post('/graphql')
             .send({
                 query: /* GraphQL */ `
@@ -126,7 +126,7 @@ describe('GraphQL Documents API (integration)', () => {
         expect(created).toBeDefined()
         expect(created.fileName).toBe('integration-test.pdf')
 
-        const deleteResponse = await request(app.getHttpServer())
+        const deleteResponse: Response = await request(app.getHttpServer())
             .post('/graphql')
             .send({
                 query: /* GraphQL */ `

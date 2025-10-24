@@ -12,6 +12,7 @@ export default tseslint.config(
             'dist/',
             'coverage/',
             '.env',
+            '.env.*',
             '.idea/',
             '.vscode/',
         ],
