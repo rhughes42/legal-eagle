@@ -1,16 +1,25 @@
 // Prisma Database Schema for Pandektes Legal Document Management System
 // PostgreSQL database with AI-extracted metadata for legal documents
 
+/**
+ * Database Connection
+ */
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
+/**
+ * Prisma Client Generator
+ */
 generator client {
     provider = "prisma-client-js"
 }
 
-// Legal document with AI-extracted metadata
+/**
+ * Document Model:
+ * Represents legal documents with AI-extracted metadata for efficient storage and retrieval.
+ */
 model Document {
     id         Int       @id @default(autoincrement())
     fileName   String // Original uploaded filename
@@ -19,15 +28,15 @@ model Document {
     court      String? // AI-extracted court or jurisdiction
     caseNumber String? // AI-extracted case or docket number
     summary    String? // AI-generated document summary
+
     // High-level classification
-    caseType   String? // e.g., civil, injunction, administrative, bankruptcy, human rights
-    area       String? // e.g., produktansvar, miljøret, state aid, lejeret, konkursret, freedom of expression, forsikringsret, patentret
+    caseType String? // e.g., civil, criminal, family, intellectual property
+    area     String? // e.g., employment, intellectual property, contracts, family law, criminal law
 
     // Area-specific details (flexible key/value JSON data, e.g., compensation, patentNumber, costs, debtAmount)
     areaData Json?
 
-    // Additional metadata and raw AI output
-    metadata  Json?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    metadata  Json? // Additional AI-extracted metadata
+    createdAt DateTime @default(now()) // Record creation timestamp
+    updatedAt DateTime @updatedAt // Record update timestamp
 }

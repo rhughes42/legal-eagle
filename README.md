@@ -5,17 +5,18 @@ Lightweight NestJS starter customized for the Pandektes LegalEagle challenge. Th
 Table of Contents
 
 - [Pandektes — LegalEagle (NestJS)](#pandektes--legaleagle-nestjs)
- 	- [Features](#features)
- 	- [Tech stack](#tech-stack)
- 	- [Quick start](#quick-start)
- 	- [Environment variables](#environment-variables)
- 	- [Development](#development)
- 	- [Uploading documents](#uploading-documents)
- 	- [Database (Prisma)](#database-prisma)
- 	- [Docker](#docker)
- 	- [Tests](#tests)
- 	- [Contributing](#contributing)
- 	- [License](#license)
+  - [Features](#features)
+  - [Tech stack](#tech-stack)
+  - [Quick start](#quick-start)
+  - [Environment variables](#environment-variables)
+  - [Development](#development)
+  - [Uploading documents](#uploading-documents)
+  - [Database (Prisma)](#database-prisma)
+  - [Docker](#docker)
+  - [Notes Regarding Startup Order](#notes-regarding-startup-order)
+  - [Tests](#tests)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Features
 
@@ -72,11 +73,7 @@ Keep secrets out of version control. Typical variables (see `.env.example`):
 
 - `DATABASE_URL` – Prisma-compatible Postgres connection string
 - `OPENAI_API_KEY` - optional; enables AI metadata extraction during uploads
-- `MODEL_PRIMARY` - optional; overrides the default `gpt-5` model name sent to OpenAI
-- `DOCUMENT_AI_PROJECT_ID` - optional; Google Cloud project id containing your Document AI processor
-- `DOCUMENT_AI_LOCATION` - optional; regional location of the processor (e.g. `us` or `eu`)
-- `DOCUMENT_AI_PROCESSOR_ID` - optional; processor id from the Document AI console
-- `DOCUMENT_AI_API_ENDPOINT` - optional; use `eu-documentai.googleapis.com` when targeting EU processors
+- `OPENAI_CHAT_MODEL` - optional; overrides the default `gpt-5` model name sent to OpenAI
 - `NODE_ENV` - `development` or `production`
 
 If you enable Document AI you must also provide credentials via the usual Google Cloud mechanism,
@@ -171,6 +168,12 @@ docker compose up -d --build
 ```
 
 The Compose file provisions a Postgres instance and wires the Nest server to it. Update `.env` with the connection string shown in `docker-compose.yml` (typically `postgresql://postgres:postgres@localhost:5432/pandektes` when using the forwarded port).
+
+## Notes Regarding Startup Order
+
+------------------------
+
+The container image includes a small helper script (`scripts/wait-for-db.sh`) that polls the Postgres host before running Prisma migrations. This avoids race conditions where the Nest app tries to run `prisma migrate deploy` before the database is ready. If you run migrations or the app from your host machine instead of within Docker, make sure the DB is reachable (for example `pg_isready -h localhost -p 5433`) before running `npx prisma migrate dev`.
 
 ## Tests
 

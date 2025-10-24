@@ -1,8 +1,7 @@
-import { Module } from '@nestjs/common';
-import { DocumentResolver } from './document.resolver';
-import { DocumentService } from './document.service';
-import { DocumentAiService } from './document-ai.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { Module } from '@nestjs/common'
+import { DocumentResolver } from './document.resolver'
+import { DocumentService } from './document.service'
+import { PrismaService } from '../prisma/prisma.service'
 
 /**
  * DocumentsModule - Legal Document Management Module for Pandektes System
@@ -60,7 +59,7 @@ import { PrismaService } from '../prisma/prisma.service';
      * - DocumentService: Contains business logic for document processing and AI integration
      * - PrismaService: Provides database access layer for PostgreSQL operations
      */
-    providers: [DocumentResolver, DocumentService, DocumentAiService, PrismaService],
+    providers: [DocumentResolver, DocumentService, PrismaService],
 
     /**
      * Exports array makes services available for injection in other modules.

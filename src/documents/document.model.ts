@@ -1,125 +1,75 @@
-import { ObjectType, Field, Int, GraphQLISODateTime } from '@nestjs/graphql';
+import { ObjectType, Field, Int, GraphQLISODateTime } from '@nestjs/graphql'
 
-/**
- * GraphQL ObjectType representing a legal document in the Pandektes system.
- * This model defines the structure for document records that can be queried
- * and manipulated through the GraphQL API.
- *
- * @example
- * ```typescript
- * const document: DocumentType = {
- *   id: 1,
- *   fileName: "2025-appeal.pdf",
- *   title: "Sample Legal Document",
- *   date: new Date("2025-01-10"),
- *   court: "Court of Appeals",
- *   caseNumber: "CA-2025-00123",
- *   summary: "This appeal challenges the district court ruling.",
- *   metadata: '{"notes":"uploaded by QA"}',
- *   createdAt: new Date(),
- *   updatedAt: new Date()
- * };
- * ```
- */
+/** GraphQL type representing a document and its metadata. */
 @ObjectType('Document')
 export class DocumentType {
-    /**
-     * Unique identifier for the document record.
-     * Auto-generated primary key used for database operations and GraphQL queries.
-     */
+    /** Unique id. */
     @Field(() => Int)
-    id!: number;
+    id!: number
 
-    /**
-     * Original name of the uploaded file.
-     * Required field that stores the actual filename including extension.
-     */
+    /** Original uploaded filename. */
     @Field(() => String)
-    fileName!: string;
+    fileName!: string
 
-    /**
-     * Human-readable title for the document.
-     * Optional field that provides a descriptive name for the document.
-     * Defaults to null if not provided.
-     */
+    /** Optional title. */
     @Field(() => String, { nullable: true })
-    title: string | null = null;
+    title: string | null = null
 
-    /**
-     * Date associated with the document (e.g., creation date, case date).
-     * Optional field stored as ISO DateTime format.
-     * Defaults to null if not provided.
-     */
+    /** Optional date (ISO). */
     @Field(() => GraphQLISODateTime, { nullable: true })
-    date: Date | null = null;
+    date: Date | null = null
 
-    /**
-     * Name of the court where the case was heard.
-     * Optional field for legal documents that specify jurisdiction.
-     * Defaults to null if not provided.
-     */
+    /** Optional court name. */
     @Field(() => String, { nullable: true })
-    court: string | null = null;
+    court: string | null = null
 
-    /**
-     * Official case number or reference identifier.
-     * Optional field used to track legal case references.
-     * Defaults to null if not provided.
-     */
+    /** Optional case/reference number. */
     @Field(() => String, { nullable: true })
-    caseNumber: string | null = null;
+    caseNumber: string | null = null
 
-    /**
-     * Brief description or summary of the document content.
-     * Optional field providing an overview of the document.
-     * Defaults to null if not provided.
-     */
+    /** Optional short description. */
     @Field(() => String, { nullable: true })
-    summary: string | null = null;
+    summary: string | null = null
 
-    /**
-     * High-level case classification (e.g., civil, administrative, bankruptcy)
-     */
+    /** Optional high-level case classification. */
     @Field(() => String, { nullable: true })
-    caseType: string | null = null;
+    caseType: string | null = null
 
-    /**
-     * Legal area taxonomy (e.g., produktansvar, miljøret, patentret)
-     */
+    /** Optional legal area taxonomy. */
     @Field(() => String, { nullable: true })
-    area: string | null = null;
+    area: string | null = null
 
-    /**
-     * Area-specific structured data as JSON string (e.g., compensation, costs, patentNumber)
-     */
+    /** Optional area-specific JSON string. */
     @Field(() => String, { nullable: true })
-    areaData: string | null = null;
+    areaData: string | null = null
 
-    /**
-     * Additional metadata stored as a JSON string.
-     * Optional field for storing structured data like tags, notes, or custom properties.
-     * Should be valid JSON when provided. Defaults to null if not provided.
-     *
-     * @example
-     * ```json
-     * {"tags":["appeal","civil"],"priority":"high","notes":"Review required"}
-     * ```
-     */
+    /** Optional metadata as JSON string. */
     @Field(() => String, { nullable: true })
-    metadata: string | null = null; // We can represent JSON as a string in GraphQL for simplicity, or define a JSON scalar
+    metadata: string | null = null
 
-    /**
-     * Timestamp when the document record was first created.
-     * Automatically set by the system and stored in ISO DateTime format.
-     */
+    /** Creation timestamp (ISO). */
     @Field(() => GraphQLISODateTime)
-    createdAt!: Date;
+    createdAt!: Date
 
-    /**
-     * Timestamp when the document record was last modified.
-     * Automatically updated by the system whenever the record changes.
-     * Stored in ISO DateTime format.
-     */
+    /** Last update timestamp (ISO). */
     @Field(() => GraphQLISODateTime)
-    updatedAt!: Date;
+    updatedAt!: Date
 }
+
+/* Example
+ * {
+ *   "id": 1042,
+ *   "fileName": "ACME_v_Omega_2023-07-15.pdf",
+ *   "title": "ACME Corporation v. Omega Logistics Ltd.",
+ *   "date": "2023-07-14T10:30:00.000Z",
+ *   "court": "United States District Court for the Southern District of New York",
+ *   "caseNumber": "1:23-cv-04567",
+ *   "summary": "Order granting in part and denying in part defendant’s motion to dismiss a breach of contract claim arising from a long‑term supply agreement. The court finds portions of the force majeure clause ambiguous and allows discovery to proceed on damages.",
+ *   "caseType": "Civil",
+ *   "area": "Contract Law",
+ *   "areaData": "{\"parties\":{\"plaintiff\":\"ACME Corporation\",\"defendant\":\"Omega Logistics Ltd.\"},\"judges\":[\"Hon. Maria Papadopoulos\"],\"claims\":[\"Breach of Contract\",\"Implied Covenant of Good Faith\"],\"disposition\":\"Motion to dismiss granted in part\",\"citations\":[\"2023 U.S. Dist. LEXIS 123456\"],\"hearingDate\":\"2023-06-20\",\"governingLaw\":\"New York\",\"relatedCases\":[\"1:22-cv-01234\"],\"docketUrl\":\"https://ecf.nysd.uscourts.gov/cgi-bin/DktRpt.pl?caseid=123456\",\"language\":\"en\"}",
+ *   "metadata": "{\"uploader\":\"r.kelly@example.com\",\"sha256\":\"a3f5f7d2d8c1f0b902c6fe1e3d1a6b7b0b5c9adf8e76bc1c6d3f5a2e9f1a2345\",\"fileSize\":834215,\"pageCount\":37,\"mimeType\":\"application/pdf\",\"source\":\"manual-upload\",\"tags\":[\"decision\",\"motion\",\"contract\"],\"ocr\":true,\"extractedAt\":\"2023-07-15T12:06:10.000Z\"}",
+ *   "createdAt": "2023-07-15T12:05:42.000Z",
+ *   "updatedAt": "2023-07-16T09:14:03.000Z"
+ * }
+ */
