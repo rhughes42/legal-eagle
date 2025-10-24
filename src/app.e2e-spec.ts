@@ -1,45 +1,9 @@
-import type { INestApplication } from '@nestjs/common'
+import { INestApplication } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
-import type { Response } from 'supertest'
 import request from 'supertest'
 
 import { AppModule } from './app.module'
 import { PrismaService } from './prisma/prisma.service'
-
-interface GraphQLResponse<T = unknown> {
-    data?: T
-    errors?: Array<{ message: string }>
-}
-
-interface DocumentsQueryResponse {
-    documents: Array<{
-        id: number
-        fileName: string
-        title: string | null
-    }>
-}
-
-interface DocumentQueryResponse {
-    document: {
-        id: number
-        fileName: string
-        title: string | null
-    } | null
-}
-
-interface CreateDocumentResponse {
-    createDocument: {
-        id: number
-        fileName: string
-        title: string | null
-    }
-}
-
-interface DeleteDocumentResponse {
-    deleteDocument: {
-        id: number
-    }
-}
 
 describe('GraphQL Documents API (integration)', () => {
     let app: INestApplication
@@ -79,17 +43,13 @@ describe('GraphQL Documents API (integration)', () => {
             })
 
         expect(response.status).toBe(200)
-        const body = response.body as GraphQLResponse<DocumentsQueryResponse>
-        expect(body.errors).toBeUndefined()
+        expect(response.body.errors).toBeUndefined()
 
-        const documents = body.data?.documents
+        const documents = response.body.data?.documents
         expect(Array.isArray(documents)).toBe(true)
-        expect(documents).toBeDefined()
-        if (documents) {
-            expect(documents.length).toBeGreaterThan(0)
-            expect(documents[0]).toHaveProperty('id')
-            expect(documents[0]).toHaveProperty('fileName')
-        }
+        expect(documents.length).toBeGreaterThan(0)
+        expect(documents[0]).toHaveProperty('id')
+        expect(documents[0]).toHaveProperty('fileName')
     })
 
     it('fetches a single document by id', async () => {
@@ -114,10 +74,9 @@ describe('GraphQL Documents API (integration)', () => {
             })
 
         expect(response.status).toBe(200)
-        const body = response.body as GraphQLResponse<DocumentQueryResponse>
-        expect(body.errors).toBeUndefined()
+        expect(response.body.errors).toBeUndefined()
 
-        const document = body.data?.document
+        const document = response.body.data?.document
         expect(document).toBeDefined()
         expect(document).toMatchObject({
             id: existing!.id,
@@ -145,14 +104,10 @@ describe('GraphQL Documents API (integration)', () => {
             })
 
         expect(createResponse.status).toBe(200)
-        const createBody = createResponse.body as GraphQLResponse<CreateDocumentResponse>
-        expect(createBody.errors).toBeUndefined()
+        expect(createResponse.body.errors).toBeUndefined()
 
-        const created = createBody.data?.createDocument
+        const created = createResponse.body.data?.createDocument
         expect(created).toBeDefined()
-        if (!created) {
-            throw new Error('Document was not created')
-        }
         expect(created.fileName).toBe('integration-test.pdf')
 
         const deleteResponse: Response = await request(app.getHttpServer())
@@ -171,9 +126,8 @@ describe('GraphQL Documents API (integration)', () => {
             })
 
         expect(deleteResponse.status).toBe(200)
-        const deleteBody = deleteResponse.body as GraphQLResponse<DeleteDocumentResponse>
-        expect(deleteBody.errors).toBeUndefined()
-        expect(deleteBody.data?.deleteDocument?.id).toBe(created.id)
+        expect(deleteResponse.body.errors).toBeUndefined()
+        expect(deleteResponse.body.data?.deleteDocument?.id).toBe(created.id)
 
         const record = await prisma.document.findUnique({
             where: {

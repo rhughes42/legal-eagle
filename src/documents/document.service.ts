@@ -86,6 +86,19 @@ interface AiExtractionResult {
     json: Record<string, unknown>
 }
 
+const DocumentExtractionSchema = z.object({
+    title: z.string().trim().nullable().optional(),
+    date: z.string().trim().nullable().optional(),
+    court: z.string().trim().nullable().optional(),
+    caseNumber: z.string().trim().nullable().optional(),
+    summary: z.string().trim().nullable().optional(),
+    caseType: z.string().trim().nullable().optional(),
+    area: z.string().trim().nullable().optional(),
+    areaData: z.record(z.any()).nullable().optional(),
+    metadata: z.record(z.any()).nullable().optional(),
+})
+type DocumentExtraction = z.infer<typeof DocumentExtractionSchema>
+
 /**
  * Supported file types for document processing
  */
@@ -219,7 +232,7 @@ export class DocumentService {
         })
 
         // Create document with merged data (user input takes precedence over AI)
-        const uploadData: Record<string, unknown> = {
+        const uploadData: Record<string, unknown> = ({
             fileName: filename,
             title: options.title ?? aiEnrichment?.fields.title ?? null,
             date: options.date ?? aiEnrichment?.fields.date ?? null,
@@ -227,9 +240,10 @@ export class DocumentService {
             caseNumber: options.caseNumber ?? aiEnrichment?.fields.caseNumber ?? null,
             summary: options.summary ?? aiEnrichment?.fields.summary ?? null,
             metadata: combinedMetadata,
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        ;(uploadData as any).caseType = options.caseType ?? null
+        }(
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            uploadData as any,
+        ).caseType = options.caseType ?? null)
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         ;(uploadData as any).area = options.area ?? null
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -495,10 +509,9 @@ export class DocumentService {
         const prompt = this.buildExtractionPrompt(rawText)
 
         try {
-            const response: ChatCompletion = await client.chat.completions.create({
+            const response = await client.responses.parse({
                 model,
-                temperature: 0.1, // Low temperature for consistent extraction
-                messages: [
+                input: [
                     {
                         role: 'system',
                         content: 'You extract concise metadata from legal documents. Respond with ONLY valid JSON.',
@@ -628,6 +641,9 @@ export class DocumentService {
                 court,
                 caseNumber,
                 summary,
+                caseType,
+                area,
+                areaData,
             },
             json,
         }

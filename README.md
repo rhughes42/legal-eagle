@@ -10,8 +10,10 @@ Table of Contents
   - [Quick start](#quick-start)
   - [Environment variables](#environment-variables)
   - [Development](#development)
+  - [Uploading documents](#uploading-documents)
   - [Database (Prisma)](#database-prisma)
   - [Docker](#docker)
+  - [Notes Regarding Startup Order](#notes-regarding-startup-order)
   - [Tests](#tests)
   - [Contributing](#contributing)
   - [License](#license)
@@ -22,6 +24,7 @@ Table of Contents
 - Prisma ORM + migrations configured for PostgreSQL
 - Docker Compose for local DB and app orchestration
 - Example endpoints and basic tests
+- Optional Google Document AI integration for high fidelity PDF parsing
 
 ## Tech stack
 
@@ -69,9 +72,13 @@ Table of Contents
 Keep secrets out of version control. Typical variables (see `.env.example`):
 
 - `DATABASE_URL` – Prisma-compatible Postgres connection string
-- `OPENAI_API_KEY` – optional; enables AI metadata extraction during uploads
-- `MODEL_PRIMARY` – optional; overrides the default `gpt-5` model name sent to OpenAI
-- `NODE_ENV` – `development` or `production`
+- `OPENAI_API_KEY` - optional; enables AI metadata extraction during uploads
+- `OPENAI_CHAT_MODEL` - optional; overrides the default `gpt-5` model name sent to OpenAI
+- `NODE_ENV` - `development` or `production`
+
+If you enable Document AI you must also provide credentials via the usual Google Cloud mechanism,
+for example setting `GOOGLE_APPLICATION_CREDENTIALS` to the path of a service account JSON file
+with `documentai.processors.process` permission.
 
 Only commit the **keys** (not values) in `.env.example` so teammates know what to configure.
 
@@ -93,7 +100,10 @@ npm run start:prod
 ## Uploading documents
 
 1. Ensure the API is running and `OPENAI_API_KEY` is set if you want AI enrichment.
-2. Open Apollo Sandbox (`http://localhost:3000/graphql`) and use the following mutation:
+2. (Optional) Set the Document AI variables above plus `GOOGLE_APPLICATION_CREDENTIALS` if you want
+   Google Cloud to handle PDF text extraction. When present the server will first try Document AI
+   and fall back to local parsing if anything fails.
+3. Open Apollo Sandbox (`http://localhost:3000/graphql`) and use the following mutation:
 
    ```graphql
    mutation UploadDocument($file: Upload!, $title: String) {
@@ -109,7 +119,7 @@ npm run start:prod
 
    Attach a small PDF or HTML file as the `file` variable. The server streams the file, extracts text, optionally enriches metadata with OpenAI, and returns the stored record.
 
-3. To list all documents:
+4. To list all documents:
 
    ```graphql
    {
@@ -158,6 +168,12 @@ docker compose up -d --build
 ```
 
 The Compose file provisions a Postgres instance and wires the Nest server to it. Update `.env` with the connection string shown in `docker-compose.yml` (typically `postgresql://postgres:postgres@localhost:5432/pandektes` when using the forwarded port).
+
+## Notes Regarding Startup Order
+
+------------------------
+
+The container image includes a small helper script (`scripts/wait-for-db.sh`) that polls the Postgres host before running Prisma migrations. This avoids race conditions where the Nest app tries to run `prisma migrate deploy` before the database is ready. If you run migrations or the app from your host machine instead of within Docker, make sure the DB is reachable (for example `pg_isready -h localhost -p 5433`) before running `npx prisma migrate dev`.
 
 ## Tests
 
