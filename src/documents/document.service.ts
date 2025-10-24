@@ -85,7 +85,7 @@ interface AiExtractionResult {
         summary: string | null
         caseType: string | null
         area: string | null
-        areaData: object | null
+        areaData: Prisma.JsonValue | null
     }
     json: Record<string, unknown>
 }
