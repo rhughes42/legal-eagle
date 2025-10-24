@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DocumentResolver } from './document.resolver';
 import { DocumentService } from './document.service';
+import { DocumentAiService } from './document-ai.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
@@ -59,7 +60,7 @@ import { PrismaService } from '../prisma/prisma.service';
      * - DocumentService: Contains business logic for document processing and AI integration
      * - PrismaService: Provides database access layer for PostgreSQL operations
      */
-    providers: [DocumentResolver, DocumentService, PrismaService],
+    providers: [DocumentResolver, DocumentService, DocumentAiService, PrismaService],
 
     /**
      * Exports array makes services available for injection in other modules.

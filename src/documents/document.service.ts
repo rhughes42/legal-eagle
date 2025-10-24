@@ -24,6 +24,7 @@ import type { Readable } from 'node:stream';
 
 // Local imports
 import { DocumentType } from './document.model';
+import { DocumentAiService, type DocumentAiExtraction } from './document-ai.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 // ===== INTERFACES AND TYPES =====
@@ -121,7 +122,10 @@ export class DocumentService {
     private readonly logger = new Logger(DocumentService.name);
     private openaiClient: OpenAI | null = null;
 
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly documentAiService: DocumentAiService,
+    ) {}
 
     // ===== PUBLIC CRUD METHODS =====
 
@@ -211,10 +215,35 @@ export class DocumentService {
         }
 
         // Extract text based on file type
-        const rawText =
-            fileKind === 'pdf'
-                ? await this.extractPdfText(file.createReadStream())
-                : await this.extractHtmlText(file.createReadStream());
+        let rawText = '';
+        let documentAiResult: DocumentAiExtraction | null = null;
+
+        if (fileKind === 'pdf') {
+            const pdfBuffer = await this.streamToBuffer(file.createReadStream());
+            documentAiResult = await this.documentAiService.extractTextFromPdf(
+                pdfBuffer,
+                mimetype ?? 'application/pdf',
+            );
+
+            if (documentAiResult?.text) {
+                rawText = documentAiResult.text.trim();
+            }
+
+            if (!rawText) {
+                rawText = await this.extractPdfText(pdfBuffer);
+            }
+        } else {
+            rawText = await this.extractHtmlText(file.createReadStream());
+        }
+
+        const documentAiMetadata = documentAiResult
+            ? {
+                  processorName: documentAiResult.processorName,
+                  pageCount: documentAiResult.pageCount,
+                  paragraphCount: documentAiResult.paragraphs.length,
+                  paragraphsSample: documentAiResult.paragraphs.slice(0, 20),
+              }
+            : null;
 
         // Attempt AI metadata enrichment if text was extracted
         const aiEnrichment = rawText.length > 0 ? await this.enrichMetadataFromText(rawText) : null;
@@ -227,6 +256,7 @@ export class DocumentService {
             mimeType: mimetype ?? null,
             rawText: rawText.length > 0 ? rawText : null,
             aiExtraction: aiEnrichment?.json ?? null,
+            documentAi: documentAiMetadata,
         });
 
         // Create document with merged data (user input takes precedence over AI)
@@ -711,14 +741,13 @@ export class DocumentService {
     }
 
     /**
-     * Extracts text content from PDF file stream
+     * Extracts text content from a PDF buffer using the local pdf-parse fallback.
      *
-     * @param stream - Readable stream of PDF data
+     * @param buffer - Raw PDF bytes
      * @returns Promise resolving to extracted text
      * @throws BadRequestException if PDF is empty or parsing fails
      */
-    private async extractPdfText(stream: Readable): Promise<string> {
-        const buffer = await this.streamToBuffer(stream);
+    private async extractPdfText(buffer: Buffer): Promise<string> {
         if (buffer.length === 0) {
             throw new BadRequestException('Uploaded PDF file is empty.');
         }
