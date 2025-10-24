@@ -236,7 +236,7 @@ export class DocumentService {
         })
 
         // Create document with merged data (user input takes precedence over AI)
-        const uploadData: Record<string, unknown> = ({
+        const uploadData: Record<string, unknown> = {
             fileName: filename,
             title: options.title ?? aiEnrichment?.fields.title ?? null,
             date: options.date ?? aiEnrichment?.fields.date ?? null,
@@ -245,12 +245,15 @@ export class DocumentService {
             summary: options.summary ?? aiEnrichment?.fields.summary ?? null,
             metadata: combinedMetadata,
         }
+        // assign additional properties via a local any reference to avoid parser/ASI edge-cases
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const _u = uploadData as any
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        ;(uploadData as any).caseType = options.caseType ?? aiEnrichment?.fields.caseType ?? null
+        _u.caseType = options.caseType ?? aiEnrichment?.fields.caseType ?? null
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        ;(uploadData as any).area = options.area ?? aiEnrichment?.fields.area ?? null
+        _u.area = options.area ?? aiEnrichment?.fields.area ?? null
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        ;(uploadData as any).areaData = typeof areaDataInput !== 'undefined' ? areaDataInput : (aiEnrichment?.fields.areaData ?? null)
+        _u.areaData = typeof areaDataInput !== 'undefined' ? areaDataInput : (aiEnrichment?.fields.areaData ?? null)
 
         const document = await this.prisma.document.create({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

@@ -5,18 +5,18 @@ Lightweight NestJS starter customized for the Pandektes LegalEagle challenge. Th
 Table of Contents
 
 - [Pandektes — LegalEagle (NestJS)](#pandektes--legaleagle-nestjs)
-  - [Features](#features)
-  - [Tech stack](#tech-stack)
-  - [Quick start](#quick-start)
-  - [Environment variables](#environment-variables)
-  - [Development](#development)
-  - [Uploading documents](#uploading-documents)
-  - [Database (Prisma)](#database-prisma)
-  - [Docker](#docker)
-  - [Notes Regarding Startup Order](#notes-regarding-startup-order)
-  - [Tests](#tests)
-  - [Contributing](#contributing)
-  - [License](#license)
+	- [Features](#features)
+	- [Tech stack](#tech-stack)
+	- [Quick start](#quick-start)
+	- [Environment variables](#environment-variables)
+	- [Development](#development)
+	- [Uploading documents](#uploading-documents)
+	- [Database (Prisma)](#database-prisma)
+	- [Docker](#docker)
+	- [Notes Regarding Startup Order](#notes-regarding-startup-order)
+	- [Tests](#tests)
+	- [Contributing](#contributing)
+	- [License](#license)
 
 ## Features
 
@@ -173,7 +173,7 @@ The Compose file provisions a Postgres instance and wires the Nest server to it.
 
 ------------------------
 
-The container image includes a small helper script (`scripts/wait-for-db.sh`) that polls the Postgres host before running Prisma migrations. This avoids race conditions where the Nest app tries to run `prisma migrate deploy` before the database is ready. If you run migrations or the app from your host machine instead of within Docker, make sure the DB is reachable (for example `pg_isready -h localhost -p 5433`) before running `npx prisma migrate dev`.
+The container image includes a small helper script (`scripts/wait-for-db.sh`) that polls the Postgres host before running Prisma migrations. This avoids race conditions where the Nest app tries to run `prisma migrate deploy` before the database is ready. If you run migrations or the app from your host machine instead of within Docker, make sure the DB is reachable (for example `pg_isready -h localhost -p 5432`) before running `npx prisma migrate dev`.
 
 ## Tests
 
