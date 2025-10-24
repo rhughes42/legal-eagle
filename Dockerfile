@@ -4,7 +4,8 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY prisma prisma
-RUN npm install
+# Use legacy-peer-deps to avoid ERESOLVE failures during image builds
+RUN npm install --legacy-peer-deps --silent
 
 COPY tsconfig.json tsconfig.json
 COPY scripts/wait-for-db.sh ./wait-for-db.sh

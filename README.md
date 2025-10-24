@@ -5,18 +5,18 @@ Lightweight NestJS starter customized for the Pandektes LegalEagle challenge. Th
 Table of Contents
 
 - [Pandektes — LegalEagle (NestJS)](#pandektes--legaleagle-nestjs)
-	- [Features](#features)
-	- [Tech stack](#tech-stack)
-	- [Quick start](#quick-start)
-	- [Environment variables](#environment-variables)
-	- [Development](#development)
-	- [Uploading documents](#uploading-documents)
-	- [Database (Prisma)](#database-prisma)
-	- [Docker](#docker)
-	- [Notes Regarding Startup Order](#notes-regarding-startup-order)
-	- [Tests](#tests)
-	- [Contributing](#contributing)
-	- [License](#license)
+ 	- [Features](#features)
+ 	- [Tech stack](#tech-stack)
+ 	- [Quick start](#quick-start)
+ 	- [Environment variables](#environment-variables)
+ 	- [Development](#development)
+ 	- [Uploading documents](#uploading-documents)
+ 	- [Database (Prisma)](#database-prisma)
+ 	- [Docker](#docker)
+ 	- [Notes Regarding Startup Order](#notes-regarding-startup-order)
+ 	- [Tests](#tests)
+ 	- [Contributing](#contributing)
+ 	- [License](#license)
 
 ## Features
 
@@ -174,6 +174,15 @@ The Compose file provisions a Postgres instance and wires the Nest server to it.
 ------------------------
 
 The container image includes a small helper script (`scripts/wait-for-db.sh`) that polls the Postgres host before running Prisma migrations. This avoids race conditions where the Nest app tries to run `prisma migrate deploy` before the database is ready. If you run migrations or the app from your host machine instead of within Docker, make sure the DB is reachable (for example `pg_isready -h localhost -p 5432`) before running `npx prisma migrate dev`.
+
+## Compatibility note: `graphql-upload`
+
+This project pins `graphql-upload` to the last CommonJS-compatible release (16.x) to maintain compatibility with the project's CommonJS build target. Newer `graphql-upload` 17.x releases are ESM-only and will throw at runtime when required from CommonJS code. If you see runtime errors like `Must use import to load ES Module`, pinning to `^16` or migrating the project to ESM are the two options:
+
+- Quick/unblocking: keep `graphql-upload@^16` (current approach). This is low-risk and keeps builds and Docker images stable.
+- Long-term: migrate the project to ESM (`"type": "module"` in `package.json`, update `tsconfig.json`, test tooling, CI, and Docker). This is recommended for modernization but requires a dedicated migration effort.
+
+If you need help with the ESM migration, open an issue or a draft PR and we can plan it out.
 
 ## Tests
 
