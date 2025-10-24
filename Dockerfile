@@ -28,6 +28,9 @@ COPY --from=build /app/wait-for-db.sh ./wait-for-db.sh
 
 RUN chmod +x ./wait-for-db.sh
 
-RUN npm prune --omit=dev
+# Skip npm prune in production image to avoid peer-dependency resolution errors during prune.
+# The build stage already installs dependencies with --legacy-peer-deps and the production image
+# copies the resulting node_modules. Removing prune keeps the image stable and avoids ERESOLVE
+# failures inside the production stage.
 
 CMD ["node", "dist/main"]
