@@ -1,26 +1,69 @@
-const { PrismaClient } = require('@prisma/client')
-const fs = require('fs')
-const path = require('path')
-require('dotenv').config()
+import { PrismaClient } from '@prisma/client'
+import fs from 'fs'
+import path from 'path'
+import 'dotenv/config'
+import { LogInfo, LogError, LogWarning } from '../src/common/logger'
 
 const prisma = new PrismaClient()
 
-// Use the reusable logger (CommonJS) so seed output is consistent with app logs
-const { LogInfo, LogMessage, LogError, LogWarning, LogDebug, LogTrace } = require('../src/common/logger')
+/**
+ * Seeds the database from a JSON or SQL seed file found relative to the script.
+ *
+ * Behavior summary:
+ * - Looks for a JSON file at ../data/seed-documents.json (preferred) or a SQL file at ../seed-documents.sql (fallback).
+ * - If a JSON file is found it must be an array of document objects. If a SQL file is found, its raw SQL will be executed.
+ * - Supports three CLI modes controlled by flags:
+ *   - Force: --force, --yes, -y  -> skip interactive confirmation and run immediately.
+ *   - Dry-run: --dry-run, --dryrun -> print what would happen (sample record / SQL summary) and make no DB changes.
+ *   - Upsert: --upsert, --upsert-by-filename -> for JSON input, update existing documents matched by fileName, otherwise create.
+ * - Default behavior for JSON input: attempt a bulk insert via prisma.document.createMany({ data, skipDuplicates: true }) and,
+ *   if that fails, fall back to per-item create with individual error handling.
+ * - For SQL input, runs the SQL with prisma.$executeRawUnsafe(sql).
+ * - Interactive mode: if running in a TTY and not forced, prompts the user to type "yes" to continue; otherwise aborts with guidance to use --force.
+ *
+ * Side effects:
+ * - Reads from the file system (seed JSON/SQL files).
+ * - Performs database operations via the global `prisma` client (createMany, create, findFirst, update, $executeRawUnsafe).
+ * - Disconnects the prisma client on completion or error via prisma.$disconnect().
+ * - May call process.exit(...) or set process.exitCode on fatal errors; logs errors and warnings to console.
+ *
+ * Error handling:
+ * - Exits with code 1 when no seed file is found, when JSON parsing fails, or when non-interactive execution is attempted without --force.
+ * - Many per-record DB errors are caught and logged as warnings so seeding can continue where possible.
+ *
+ * Important notes:
+ * - JSON seed must be an array of objects when using JSON input.
+ * - Upsert mode identifies existing rows by a `fileName` property on each document.
+ * - createMany skipDuplicates only takes effect when unique constraints exist in the schema; failures will fall back to per-item insertion.
+ *
+ * @async
+ * @function main
+ * @returns {Promise<void>} Resolves when seeding completes or when the function exits; in some error cases the process may exit with a non-zero code.
+ *
+ * @example
+ * // Run interactively (will prompt)
+ * ts-node prisma/seed.ts
+ *
+ * // Force run without prompt
+ * ts-node prisma/seed.ts --force
+ *
+ * // Dry-run to see what would be done
+ * ts-node prisma/seed.ts --dry-run
+ *
+ * // Upsert mode for JSON input (match by fileName)
+ * ts-node prisma/seed.ts --upsert
+ */
+async function main(): Promise<void> {
+    // Resolve seed files relative to project root when running compiled code (dist/)
+    // In development (ts-node), process.cwd() is project root; in production, the same.
+    const projectRoot = process.env.PROJECT_ROOT || process.cwd()
+    const jsonPath = path.resolve(projectRoot, 'data', 'seed-documents.json')
+    const sqlPath = path.resolve(projectRoot, 'seed-documents.sql')
 
-async function main() {
-    const jsonPath = path.resolve(__dirname, '..', 'data', 'seed-documents.json')
-    const sqlPath = path.resolve(__dirname, '..', 'seed-documents.sql')
+    let seedData: any = null
 
-    let seedData = null // Will hold either parsed JSON array or { sql: '...' }
-
-    // Check that the seed files exist and read accordingly...
-    // Prefer JSON if both exist.
     if (fs.existsSync(jsonPath)) {
-        // Read and parse JSON seed file
         const raw = fs.readFileSync(jsonPath, { encoding: 'utf8' })
-
-        // Attempt to parse JSON
         try {
             seedData = JSON.parse(raw)
         } catch (err) {
@@ -33,20 +76,18 @@ async function main() {
             LogError('Seed SQL file is empty')
             process.exit(1)
         }
-        // Fallback to SQL execution if JSON not present
         seedData = { sql }
     } else {
-        console.error('No seed file found (data/seed-documents.json or seed-documents.sql)')
+        LogError('No seed file found (data/seed-documents.json or seed-documents.sql)')
         process.exit(1)
     }
 
-    // CLI flags
     const argv = process.argv.slice(2)
     const force = argv.includes('--force') || argv.includes('--yes') || argv.includes('-y')
     const dryRun = argv.includes('--dry-run') || argv.includes('--dryrun')
     const upsertMode = argv.includes('--upsert') || argv.includes('--upsert-by-filename')
 
-    async function doSeed() {
+    async function doSeed(): Promise<void> {
         if (seedData.sql) {
             LogInfo('Source: SQL file -> ' + sqlPath)
             LogInfo('Records: (raw SQL)')
@@ -58,6 +99,9 @@ async function main() {
 
             LogInfo('Running seed SQL...')
             try {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                // @ts-ignore - using raw SQL from seed file (intentional)
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 await prisma.$executeRawUnsafe(seedData.sql)
                 LogInfo('Seeding complete (SQL).')
             } catch (err) {
@@ -69,7 +113,6 @@ async function main() {
             return
         }
 
-        // seedData is an array of document objects
         if (!Array.isArray(seedData)) {
             LogError('JSON seed must be an array of records')
             process.exit(1)
@@ -85,7 +128,6 @@ async function main() {
             return
         }
 
-        // If upsert mode requested, do per-record upsert-like behavior using fileName
         if (upsertMode) {
             LogInfo('Upsert mode: will update existing records matched by fileName, else create.')
             try {
@@ -94,12 +136,11 @@ async function main() {
                 for (const doc of seedData) {
                     const fileName = doc.fileName || null
                     if (!fileName) {
-                        // no identifying filename; try create
                         try {
                             await prisma.document.create({ data: doc })
                             created++
                         } catch (err) {
-                            LogWarning('Create failed for record (no fileName): ' + (err.message || err))
+                            LogWarning('Create failed for record (no fileName): ' + String(err))
                         }
                         continue
                     }
@@ -110,14 +151,14 @@ async function main() {
                             await prisma.document.update({ where: { id: existing.id }, data: doc })
                             updated++
                         } catch (err) {
-                            LogWarning('Update failed for ' + fileName + ' - ' + (err.message || err))
+                            LogWarning('Update failed for ' + fileName + ' - ' + String(err))
                         }
                     } else {
                         try {
                             await prisma.document.create({ data: doc })
                             created++
                         } catch (err) {
-                            LogWarning('Create failed for ' + fileName + ' - ' + (err.message || err))
+                            LogWarning('Create failed for ' + fileName + ' - ' + String(err))
                         }
                     }
                 }
@@ -131,19 +172,16 @@ async function main() {
             return
         }
 
-        // Default: try createMany for speed with skipDuplicates; fall back to per-item create
         LogInfo('Attempting bulk insert with createMany (skipDuplicates: true).')
         try {
-            // createMany may ignore duplicates only when unique constraints exist.
             await prisma.document.createMany({ data: seedData, skipDuplicates: true })
             LogInfo('Bulk insert complete (createMany).')
             await prisma.$disconnect()
             return
         } catch (bulkErr) {
-            LogWarning('createMany failed or not fully supported for this data. Falling back to per-item insert. ' + (bulkErr.message || bulkErr))
+            LogWarning('createMany failed or not fully supported for this data. Falling back to per-item insert. ' + String(bulkErr))
         }
 
-        // Fallback per-item create with error handling
         try {
             let created = 0
             for (const doc of seedData) {
@@ -151,7 +189,7 @@ async function main() {
                     await prisma.document.create({ data: doc })
                     created++
                 } catch (err) {
-                    LogWarning('Insert error for ' + (doc.fileName || '(no filename)') + ' - ' + (err.message || err))
+                    LogWarning('Insert error for ' + (doc.fileName || '(no filename)') + ' - ' + String(err))
                 }
             }
             LogInfo(`Seeding complete (created ${created}/${seedData.length}).`)
@@ -163,7 +201,6 @@ async function main() {
         }
     }
 
-    // If dry-run requested, print summary and exit without DB changes
     if (dryRun) {
         LogInfo('[dry-run] Summary:')
         if (seedData.sql) {
@@ -181,12 +218,12 @@ async function main() {
         return
     }
 
-    // Interactive confirmation when possible
     if (process.stdin.isTTY) {
-        const rl = require('readline').createInterface({ input: process.stdin, output: process.stdout })
-        const answer = await new Promise((resolve) =>
-            rl.question('This will modify your database. Type "yes" to continue: ', (ans) => {
-                rl.close()
+        const rl = await import('readline')
+        const reader = rl.createInterface({ input: process.stdin, output: process.stdout })
+        const answer = await new Promise<string>((resolve) =>
+            reader.question('This will modify your database. Type "yes" to continue: ', (ans) => {
+                reader.close()
                 resolve(ans)
             }),
         )
@@ -204,4 +241,4 @@ async function main() {
     }
 }
 
-main()
+void main()

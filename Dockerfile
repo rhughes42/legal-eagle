@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY prisma prisma
+COPY scripts scripts
+COPY data data
 # Use legacy-peer-deps to avoid ERESOLVE failures during image builds
 RUN npm install --legacy-peer-deps --silent
 
@@ -23,6 +25,7 @@ RUN apk add --no-cache openssl ca-certificates libc6-compat
 COPY --from=build /app/package*.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/scripts ./scripts
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/wait-for-db.sh ./wait-for-db.sh
 

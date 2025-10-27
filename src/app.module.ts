@@ -7,6 +7,7 @@ import { Request, Response } from 'express'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { DocumentsModule } from './documents/documents.module'
+import { AppLogger } from './common/logger.service'
 
 /**
  * GraphQL Configuration Factory
@@ -164,6 +165,7 @@ function createGraphQLConfig(): ApolloDriverConfig {
          * and service management functionality.
          */
         AppService,
+        AppLogger,
     ],
 })
 export class AppModule {}

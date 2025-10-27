@@ -10,8 +10,8 @@
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "sourceMap": true,
-        "outDir": "./dist",
-        "rootDir": "./src",
+    "outDir": "./dist",
+    "rootDir": ".",
         "baseUrl": "./",
         "incremental": false, // Changed from true to false to avoid tsbuildinfo file
         "skipLibCheck": true,
@@ -20,6 +20,6 @@
         "resolveJsonModule": true,
         "types": ["node", "jest"]
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "prisma/**/*", "scripts/**/*"],
     "exclude": ["test", "dist", "node_modules", "**/*.spec.ts", "**/*.test.ts"]
 }
