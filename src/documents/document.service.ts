@@ -191,31 +191,31 @@ interface AiExtractionResult {
 // a JSON Schema with explicit `type` in additionalProperties.
 const JsonPrimitiveSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
 const JsonValueSchema: z.ZodType<unknown> = z.lazy(() =>
-    z.union([JsonPrimitiveSchema, z.array(JsonValueSchema), z.object({}).passthrough()]),
+	z.union([JsonPrimitiveSchema, z.array(JsonValueSchema), z.object({}).passthrough()]),
 )
 
 const KeyValuePairSchema = z
-    .object({
-        key: z.string().trim(),
-        value: z.string().trim(),
-    })
-    .strict()
+	.object({
+		key: z.string().trim(),
+		value: z.string().trim(),
+	})
+	.strict()
 
 const DocumentExtractionSchema = z
-    .object({
-        title: z.string().trim().nullable().optional(),
-        date: z.string().trim().nullable().optional(),
-        court: z.string().trim().nullable().optional(),
-        caseNumber: z.string().trim().nullable().optional(),
-        summary: z.string().trim().nullable().optional(),
-        caseType: z.string().trim().nullable().optional(),
-        area: z.string().trim().nullable().optional(),
-        // Use arrays of strict key/value pairs so that the generated JSON
-        // schema has additionalProperties=false at every object level.
-        areaData: z.array(KeyValuePairSchema).nullable().optional(),
-        metadata: z.array(KeyValuePairSchema).nullable().optional(),
-    })
-    .strict()
+	.object({
+		title: z.string().trim().nullable().optional(),
+		date: z.string().trim().nullable().optional(),
+		court: z.string().trim().nullable().optional(),
+		caseNumber: z.string().trim().nullable().optional(),
+		summary: z.string().trim().nullable().optional(),
+		caseType: z.string().trim().nullable().optional(),
+		area: z.string().trim().nullable().optional(),
+		// Use arrays of strict key/value pairs so that the generated JSON
+		// schema has additionalProperties=false at every object level.
+		areaData: z.array(KeyValuePairSchema).nullable().optional(),
+		metadata: z.array(KeyValuePairSchema).nullable().optional(),
+	})
+	.strict()
 type DocumentExtraction = z.infer<typeof DocumentExtractionSchema>
 
 /**
@@ -509,7 +509,6 @@ export class DocumentService {
 		this.logger.debug(`Processing uploaded file: ${filename} as type: ${fileKind}`)
 
 		// Extract text based on file type
-		// eslint-disable-next-line prettier/prettier
 		const rawText =
 			fileKind === 'pdf' ? await this.extractPdfText(file.createReadStream()) : await this.extractHtmlText(file.createReadStream())
 
@@ -755,11 +754,9 @@ export class DocumentService {
 
 		// Timestamps: ensure Date objects (fall back to current time if coercion fails)
 		// Todo: Handle this more securely / gracefully.
-		// eslint-disable-next-line prettier/prettier
 		dto.createdAt =
 			coerceDateField(document.createdAt) ??
 			(this.logger.warn('Failed to coerce createdAt; falling back to current time.'), new Date())
-		// eslint-disable-next-line prettier/prettier
 		dto.updatedAt =
 			coerceDateField(document.updatedAt) ??
 			(this.logger.warn('Failed to coerce updatedAt; falling back to current time.'), new Date())
@@ -1039,14 +1036,14 @@ export class DocumentService {
 
 		return [
 			'Extract structured metadata for a legal document. Respond ONLY with valid JSON that matches this object shape:',
-            '{"title": null, "date": null, "court": null, "caseNumber": null, "summary": null, "caseType": null, "area": null, "areaData": null, "metadata": null}',
+			'{"title": null, "date": null, "court": null, "caseNumber": null, "summary": null, "caseType": null, "area": null, "areaData": null, "metadata": null}',
 			'Rules:',
 			'1. Output must be a single JSON object with exactly the keys above (no extra or missing keys).',
 			'2. Use null when a value cannot be determined confidently.',
 			'3. Dates must be ISO 8601 strings (YYYY-MM-DD or full timestamp).',
 			'4. Strings should be concise and omit leading labels (e.g., no "Case Number:" prefixes).',
-            '5. areaData must be either null or an array of objects: [{"key": string, "value": string}]. No extra fields allowed on each object.',
-            '6. metadata must be either null or an array of objects: [{"key": string, "value": string}]. No extra fields allowed on each object.',
+			'5. areaData must be either null or an array of objects: [{"key": string, "value": string}]. No extra fields allowed on each object.',
+			'6. metadata must be either null or an array of objects: [{"key": string, "value": string}]. No extra fields allowed on each object.',
 			'',
 			'Field guidance:',
 			'- title: Official case caption or document heading.',
@@ -1305,5 +1302,305 @@ export class DocumentService {
 		const buffer = await this.streamToBuffer(stream)
 
 		return buffer.toString(encoding)
+	}
+
+	// ===== PUBLIC METADATA PARSING METHODS =====
+
+	/**
+	 * Parse and clean metadata for a single document by ID
+	 *
+	 * Converts structured key-value pairs in areaData and metadata fields
+	 * from their string representations to clean JSON objects.
+	 *
+	 * @param documentId - The ID of the document to process
+	 * @param dryRun - If true, returns what would be changed without making updates
+	 * @returns Promise resolving to parsing result with change details
+	 * @throws NotFoundException if document doesn't exist
+	 * @throws BadRequestException if parsing fails
+	 */
+	async parseDocumentMetadata(
+		documentId: number,
+		dryRun = false,
+	): Promise<{
+		hasChanges: boolean
+		changes: {
+			areaData?: { before: string | null; after: object | null }
+			metadata?: { before: string | null; after: object | null }
+		}
+		document?: DocumentType
+	}> {
+		this.logger.log(`🔍 parseDocumentMetadata: Processing document ${documentId} (dryRun=${dryRun})`)
+
+		// Fetch the document
+		const document = await this.prisma.document.findUnique({
+			where: { id: documentId },
+			select: {
+				id: true,
+				fileName: true,
+				title: true,
+				areaData: true,
+				metadata: true,
+			},
+		})
+
+		if (!document) {
+			throw new NotFoundException(`Document with ID ${documentId} not found`)
+		}
+
+		const changes: any = {}
+		let hasChanges = false
+		const updates: any = {}
+
+		// Process areaData
+		if (document.areaData && typeof document.areaData === 'string') {
+			const parsedAreaData = this.parseStructuredAreaData(document.areaData)
+			if (parsedAreaData) {
+				changes.areaData = {
+					before: document.areaData,
+					after: parsedAreaData,
+				}
+				updates.areaData = parsedAreaData
+				hasChanges = true
+				this.logger.log(`📝 parseDocumentMetadata: Parsed areaData for document ${documentId}`)
+			}
+		}
+
+		// Process metadata
+		if (document.metadata && typeof document.metadata === 'string') {
+			const parsedMetadata = this.parseStructuredMetadata(document.metadata)
+			if (parsedMetadata) {
+				changes.metadata = {
+					before: document.metadata,
+					after: parsedMetadata,
+				}
+				updates.metadata = parsedMetadata
+				hasChanges = true
+				this.logger.log(`📝 parseDocumentMetadata: Parsed metadata for document ${documentId}`)
+			}
+		}
+
+		// Apply updates if not in dry-run mode
+		let updatedDocument: DocumentType | undefined
+		if (hasChanges && !dryRun) {
+			try {
+				const updated = await this.prisma.document.update({
+					where: { id: documentId },
+					data: updates,
+				})
+				updatedDocument = this.mapToDocumentType(updated)
+				this.logger.log(`✅ parseDocumentMetadata: Successfully updated document ${documentId}`)
+			} catch (error) {
+				this.logger.error(`❌ parseDocumentMetadata: Failed to update document ${documentId}`, error)
+				throw new BadRequestException(`Failed to update document metadata: ${String(error)}`)
+			}
+		}
+
+		return {
+			hasChanges,
+			changes,
+			document: updatedDocument,
+		}
+	}
+
+	/**
+	 * Parse and clean metadata for all documents or a filtered set
+	 *
+	 * @param options - Processing options
+	 * @param options.dryRun - If true, shows what would be changed without making updates
+	 * @param options.limit - Maximum number of documents to process (default: no limit)
+	 * @param options.filter - Optional filter criteria for documents
+	 * @returns Promise resolving to processing summary
+	 */
+	async parseAllDocumentsMetadata(
+		options: {
+			dryRun?: boolean
+			limit?: number
+			filter?: {
+				hasStringAreaData?: boolean
+				hasStringMetadata?: boolean
+			}
+		} = {},
+	): Promise<{
+		processedCount: number
+		changedCount: number
+		failedCount: number
+		results: Array<{
+			documentId: number
+			fileName: string
+			hasChanges: boolean
+			changes?: any
+			error?: string
+		}>
+	}> {
+		const { dryRun = false, limit, filter } = options
+
+		this.logger.log(`🔍 parseAllDocumentsMetadata: Starting batch processing (dryRun=${dryRun}, limit=${limit || 'none'})`)
+
+		// Build where clause based on filter
+		const where: any = {}
+		if (filter?.hasStringAreaData || filter?.hasStringMetadata) {
+			where.OR = []
+			if (filter.hasStringAreaData) {
+				where.OR.push({
+					areaData: {
+						not: null,
+					},
+				})
+			}
+			if (filter.hasStringMetadata) {
+				where.OR.push({
+					metadata: {
+						not: null,
+					},
+				})
+			}
+		}
+
+		// Fetch documents
+		const documents = await this.prisma.document.findMany({
+			where: Object.keys(where).length > 0 ? where : undefined,
+			select: {
+				id: true,
+				fileName: true,
+				title: true,
+				areaData: true,
+				metadata: true,
+			},
+			take: limit,
+			orderBy: { id: 'asc' },
+		})
+
+		this.logger.log(`📄 parseAllDocumentsMetadata: Found ${documents.length} documents to process`)
+
+		let processedCount = 0
+		let changedCount = 0
+		let failedCount = 0
+		const results: any[] = []
+
+		for (const document of documents) {
+			try {
+				const result = await this.parseDocumentMetadata(document.id, dryRun)
+				results.push({
+					documentId: document.id,
+					fileName: document.fileName,
+					hasChanges: result.hasChanges,
+					changes: result.changes,
+				})
+
+				processedCount++
+				if (result.hasChanges) {
+					changedCount++
+				}
+			} catch (error) {
+				failedCount++
+				results.push({
+					documentId: document.id,
+					fileName: document.fileName,
+					hasChanges: false,
+					error: String(error),
+				})
+				this.logger.error(`❌ parseAllDocumentsMetadata: Failed to process document ${document.id}`, error)
+			}
+		}
+
+		this.logger.log(
+			`✅ parseAllDocumentsMetadata: Completed batch processing. Processed: ${processedCount}, Changed: ${changedCount}, Failed: ${failedCount}`,
+		)
+
+		return {
+			processedCount,
+			changedCount,
+			failedCount,
+			results,
+		}
+	}
+
+	// ===== PRIVATE METADATA PARSING HELPER METHODS =====
+
+	/**
+	 * Parse areaData from key-value pairs array to clean object
+	 *
+	 * @param areaData - String representation of areaData
+	 * @returns Parsed object or null if parsing fails/not needed
+	 */
+	private parseStructuredAreaData(areaData: string | null): Record<string, string> | null {
+		if (!areaData) return null
+
+		try {
+			const parsed = JSON.parse(areaData)
+
+			// If it's already a clean object, return it
+			if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+				return parsed as Record<string, string>
+			}
+
+			// If it's an array of key-value pairs, convert it
+			if (Array.isArray(parsed)) {
+				const result: Record<string, string> = {}
+				for (const item of parsed) {
+					if (item && typeof item === 'object' && 'key' in item && 'value' in item) {
+						result[item.key] = item.value
+					}
+				}
+				return Object.keys(result).length > 0 ? result : null
+			}
+
+			return null
+		} catch (error) {
+			this.logger.warn(`parseStructuredAreaData: Failed to parse areaData: ${areaData}`, error)
+			return null
+		}
+	}
+
+	/**
+	 * Parse metadata from key-value pairs array to clean object
+	 *
+	 * @param metadata - String representation of metadata
+	 * @returns Parsed object or null if parsing fails/not needed
+	 */
+	private parseStructuredMetadata(metadata: string | null): Record<string, any> | null {
+		if (!metadata) return null
+
+		try {
+			const parsed = JSON.parse(metadata)
+
+			// If it's already a clean object, return it
+			if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+				return parsed as Record<string, any>
+			}
+
+			// If it's an array of key-value pairs, convert it
+			if (Array.isArray(parsed)) {
+				const result: Record<string, any> = {}
+				for (const item of parsed) {
+					if (item && typeof item === 'object' && 'key' in item && 'value' in item) {
+						// Try to parse numeric values and booleans
+						let value: string | number | boolean | null = item.value
+
+						// Convert string representations of numbers/booleans
+						if (typeof value === 'string') {
+							const numValue = Number(value)
+							if (!isNaN(numValue) && isFinite(numValue)) {
+								value = numValue
+							} else if (value.toLowerCase() === 'true') {
+								value = true
+							} else if (value.toLowerCase() === 'false') {
+								value = false
+							} else if (value.toLowerCase() === 'null') {
+								value = null
+							}
+						}
+
+						result[item.key] = value
+					}
+				}
+				return Object.keys(result).length > 0 ? result : null
+			}
+
+			return null
+		} catch (error) {
+			this.logger.warn(`parseStructuredMetadata: Failed to parse metadata: ${metadata}`, error)
+			return null
+		}
 	}
 }

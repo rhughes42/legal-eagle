@@ -1,0 +1,28 @@
+{
+	"data": {
+		"html": {
+			"id": 80,
+			"fileName": "case-page.html",
+			"title": "Afgørelse om revision af fredning af Farumgård Park i Furesø Kommune",
+			"summary": "Miljø- og Fødevareklagenævnet stadfæster Fredningsnævnets beslutning om revision af fredningen af Farumgård Park i Furesø Kommune og fastsætter nye fredningsbestemmelser med krav om bevarelse af parkens karakter, bygningsfredning under Nationalmuseet og begrænset offentlig adgang langs angivne stiforløb. Afgørelsen er i det væsentlige endelig med angivne klage- og ankemuligheder for erstatningsspørgsmål og mulighed for retssag inden seks måneder.",
+			"caseType": "administrative",
+			"area": "nature protection",
+			"areaData": "[{\"key\":\"Issuer\",\"value\":\"Miljø- og Fødevareklagenævnet\"},{\"key\":\"Subject\",\"value\":\"Revision af fredning af Farumgård Park\"},{\"key\":\"Property\",\"value\":\"matr.nr. 1g og 1cq Farumgård\"},{\"key\":\"Municipality\",\"value\":\"Furesø Kommune\"},{\"key\":\"Legal provisions\",\"value\":\"naturbeskyttelseslovens §44 stk.1 jf. §40; §45; §88\"},{\"key\":\"Outcome\",\"value\":\"Stadfæstelse af Fredningsnævnets afgørelse af 10.11.2021 og gennemførelse af revision med nye fredningsbestemmelser\"},{\"key\":\"Public access restrictions\",\"value\":\"Adgang kun ad angivet stiforløb (Stiforløb A eller alternativt B efter meddelelse), kun til fods, kun på sædvanlig tid af dagen, ophold uden for sti forbudt\"},{\"key\":\"Building restrictions\",\"value\":\"Bygningsfredning under Nationalmuseet; ingen ændringer uden museets tilladelse; kun små interimistiske huse til fjerkræ tilladt under vilkår\"},{\"key\":\"Appeals\",\"value\":\"Afgørelsen er endelig administrativt; retssag skal anlægges inden 6 måneder; erstatningsspørgsmål kan påklages til Taksationskommissionen inden 4 uger\"},{\"key\":\"Referenced court case\",\"value\":\"BS-11751/2024-LYN (verserende retssag)\"}]",
+			"court": "Miljø- og Fødevareklagenævnet",
+			"caseNumber": "22/00300",
+			"updatedAt": "2025-10-27T18:47:46.273Z"
+		},
+		"pdf": {
+			"id": 82,
+			"fileName": "legal-doc.pdf",
+			"title": "Judgment of the Court (Sixth Chamber) in Case C-723/23 (Amilla)",
+			"summary": "Preliminary ruling on the interpretation of Articles 20 and 23(1)–(2) of Directive (EU) 2019/1023 concerning access to discharge and derogations for dishonest or bad faith conduct by a natural person who has become insolvent. Request made by the Juzgado de lo Mercantil No 3 de Oviedo in proceedings between VT (debtor) and the Agencia Estatal de la Administración Tributaria. The Court considers the scope of conditions for access to discharge of debt under EU law.",
+			"caseType": "civil (preliminary ruling)",
+			"area": "insolvency and restructuring; discharge of debt (EU law)",
+			"areaData": "[{\"key\":\"parties\",\"value\":\"Agencia Estatal de la Administración Tributaria v VT, UP\"},{\"key\":\"referringCourt\",\"value\":\"Juzgado de lo Mercantil No 3 de Oviedo (sede en Gijón)\"},{\"key\":\"directive\",\"value\":\"Directive (EU) 2019/1023 on preventive restructuring, insolvency and discharge of debt\"},{\"key\":\"provisionsConsidered\",\"value\":\"Article 20; Article 23(1) and (2)\"},{\"key\":\"chamberComposition\",\"value\":\"Sixth Chamber; Rapporteur F. Biltgen; Advocate General J. Richard de la Tour\"}]",
+			"court": "Court of Justice of the European Union (Sixth Chamber)",
+			"caseNumber": "C-723/23",
+			"updatedAt": "2025-10-27T19:04:20.493Z"
+		}
+	}
+}

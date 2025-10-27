@@ -28,8 +28,8 @@ function createGraphQLConfig(): ApolloDriverConfig {
 	return {
 		driver: ApolloDriver,
 		autoSchemaFile: true,
-		playground: process.env.NODE_ENV !== 'production',
-		introspection: process.env.NODE_ENV !== 'production',
+		playground: true,
+		introspection: true,
 		context: ({ req, res }: { req: Request; res: Response }) => ({ req, res }),
 		formatError: (error) => ({
 			message: error.message,

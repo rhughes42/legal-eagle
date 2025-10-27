@@ -1,174 +1,173 @@
 [
 	{
-		"fileName": "data/case-page.html",
-		"title": "Afgørelse om revision af fredning af Farumgård Park i Furesø Kommune - Verserende retssag, BS-11751/2024-LYN",
-		"date": "2023-09-07T00:00:00.000Z",
-		"court": "Miljø- og Fødevareklagenævnet",
+		"area": "nature protection",
+		"areaData": "[{\"key\":\"Issuer\",\"value\":\"Miljø- og Fødevareklagenævnet\"},{\"key\":\"Subject\",\"value\":\"Revision af fredning af Farumgård Park\"},{\"key\":\"Property\",\"value\":\"matr.nr. 1g og 1cq Farumgård\"},{\"key\":\"Municipality\",\"value\":\"Furesø Kommune\"},{\"key\":\"Legal provisions\",\"value\":\"naturbeskyttelseslovens §44 stk.1 jf. §40; §45; §88\"},{\"key\":\"Outcome\",\"value\":\"Stadfæstelse af Fredningsnævnets afgørelse af 10.11.2021 og gennemførelse af revision med nye fredningsbestemmelser\"},{\"key\":\"Public access restrictions\",\"value\":\"Adgang kun ad angivet stiforløb (Stiforløb A eller alternativt B efter meddelelse), kun til fods, kun på sædvanlig tid af dagen, ophold uden for sti forbudt\"},{\"key\":\"Building restrictions\",\"value\":\"Bygningsfredning under Nationalmuseet; ingen ændringer uden museets tilladelse; kun små interimistiske huse til fjerkræ tilladt under vilkår\"},{\"key\":\"Appeals\",\"value\":\"Afgørelsen er endelig administrativt; retssag skal anlægges inden 6 måneder; erstatningsspørgsmål kan påklages til Taksationskommissionen inden 4 uger\"},{\"key\":\"Referenced court case\",\"value\":\"BS-11751/2024-LYN (verserende retssag)\"}]",
 		"caseNumber": "22/00300",
-		"summary": "Miljø- og Fødevareklagenævnet stadfæster Fredningsnævnet for Københavns afgørelse om revision af fredningen af Farumgård Park i Furesø Kommune. Revisionen gennemføres med bestemmelser der fasteholder ejendommens karakter og sikrer offentlighedens færdselsret gennem parken.",
-		"caseType": null,
-		"area": null,
-		"areaData": null,
+		"caseType": "administrative",
+		"court": "Miljø- og Fødevareklagenævnet",
+		"createdAt": "2024-01-15T10:30:00.000Z",
+		"date": "2023-09-07T00:00:00.000Z",
+		"fileName": "data/case-page.html",
 		"metadata": {
 			"rawText": "Miljø- og Fødevareklagenævnet har truffet afgørelse efter naturbeskyttelseslovens § 44, stk. 1, jf. § 40. Fredningen omfatter matr.nr. 1g og 1cq Farumgård, Farum. Fredningens formål er at fastholde ejendommens karakter og sikre offentlighedens færdselsret gennem parken."
 		},
-		"createdAt": "2024-01-15T10:30:00.000Z",
+		"summary": "Miljø- og Fødevareklagenævnet stadfæster Fredningsnævnet for Københavns afgørelse om revision af fredningen af Farumgård Park i Furesø Kommune. Revisionen gennemføres med bestemmelser der fasteholder ejendommens karakter og sikrer offentlighedens færdselsret gennem parken.",
+		"title": "Afgørelse om revision af fredning af Farumgård Park i Furesø Kommune - Verserende retssag, BS-11751/2024-LYN",
 		"updatedAt": "2024-01-15T10:30:00.000Z"
 	},
 	{
-		"fileName": "data/ECJ-C-723-23-Amilla-Debt-Discharge-Preliminary-Ruling.pdf",
-		"title": "JUDGMENT OF THE COURT (Sixth Chamber) - Case C-723/23 Amilla - Debt Discharge Procedures",
-		"date": "2025-04-10T00:00:00.000Z",
-		"court": "Court of Justice of the European Union (Sixth Chamber)",
+		"area": "insolvency and restructuring; discharge of debt (EU law)",
+		"areaData": "[{\"key\":\"parties\",\"value\":\"Agencia Estatal de la Administración Tributaria v VT, UP\"},{\"key\":\"referringCourt\",\"value\":\"Juzgado de lo Mercantil No 3 de Oviedo (sede en Gijón)\"},{\"key\":\"directive\",\"value\":\"Directive (EU) 2019/1023 on preventive restructuring, insolvency and discharge of debt\"},{\"key\":\"provisionsConsidered\",\"value\":\"Article 20; Article 23(1) and (2)\"},{\"key\":\"chamberComposition\",\"value\":\"Sixth Chamber; Rapporteur F. Biltgen; Advocate General J. Richard de la Tour\"}]",
 		"caseNumber": "C-723/23",
-		"summary": "ECJ preliminary ruling on Directive 2019/1023 concerning restructuring, insolvency and discharge of debt. Case involves conditions for access to discharge of debt and the concept of dishonest or bad faith conduct towards creditors.",
-		"caseType": null,
-		"area": null,
-		"areaData": null,
+		"caseType": "civil (preliminary ruling)",
+		"court": "Court of Justice of the European Union (Sixth Chamber)",
+		"createdAt": "2024-01-16T14:45:00.000Z",
+		"fileName": "legal-doc.pdf",
 		"metadata": {
 			"rawText": "JUDGMENT OF THE COURT (Sixth Chamber) 10 April 2025. Reference for a preliminary ruling under Article 267 TFEU from the Juzgado de lo Mercantil No 3 de Oviedo regarding Directive (EU) 2019/1023 on procedures concerning restructuring, insolvency and discharge of debt. Case C-723/23 Amilla involves conditions for access to discharge and concept of dishonest or bad faith conduct towards creditors of a third party."
 		},
-		"createdAt": "2024-01-16T14:45:00.000Z",
+		"summary": "Preliminary ruling on the interpretation of Articles 20 and 23(1)–(2) of Directive (EU) 2019/1023 concerning access to discharge and derogations for dishonest or bad faith conduct by a natural person who has become insolvent. Request made by the Juzgado de lo Mercantil No 3 de Oviedo in proceedings between VT (debtor) and the Agencia Estatal de la Administración Tributaria. The Court considers the scope of conditions for access to discharge of debt under EU law.",
+		"title": "Judgment of the Court (Sixth Chamber) in Case C-723/23 (Amilla)",
 		"updatedAt": "2024-01-16T14:45:00.000Z"
 	},
 	{
-		"fileName": "data/højesteret-dom-U2024-1234H.pdf",
-		"title": "Højesterets dom om erstatning for produktansvar - Medicinalvirksomhed mod forbruger",
-		"date": "2024-03-15T00:00:00.000Z",
-		"court": "Højesteret",
-		"caseNumber": "U.2024.1234H",
-		"summary": "Højesteret stadfæster landsrettens dom og tilkender sagsøger erstatning for skader forårsaget af defekt medicinprodukt. Sagen omhandler produktansvar efter produktansvarsloven og bevisbyrdens fordeling.",
-		"caseType": "civil",
 		"area": "produktansvar",
 		"areaData": {
 			"compensation": "450000"
 		},
+		"caseNumber": "U.2024.1234H",
+		"caseType": "civil",
+		"court": "Højesteret",
+		"createdAt": "2024-03-16T09:15:00.000Z",
+		"date": "2024-03-15T00:00:00.000Z",
+		"fileName": "data/højesteret-dom-U2024-1234H.pdf",
 		"metadata": {
 			"rawText": "Højesteret har afsagt dom i sag om produktansvar vedrørende medicinalprodukt. Retten finder, at medicinalvirksomheden er ansvarlig for skader opstået som følge af defekt i produktet. Erstatning fastsættes til 450.000 kr."
 		},
-		"createdAt": "2024-03-16T09:15:00.000Z",
+		"summary": "Højesteret stadfæster landsrettens dom og tilkender sagsøger erstatning for skader forårsaget af defekt medicinprodukt. Sagen omhandler produktansvar efter produktansvarsloven og bevisbyrdens fordeling.",
+		"title": "Højesterets dom om erstatning for produktansvar - Medicinalvirksomhed mod forbruger",
 		"updatedAt": "2024-03-16T09:15:00.000Z"
 	},
 	{
-		"fileName": "data/landsret-kendelse-V-123-24.pdf",
-		"title": "Vestre Landsrets kendelse om midlertidigt forbud mod byggearbejde",
-		"date": "2024-02-28T00:00:00.000Z",
-		"court": "Vestre Landsret",
-		"caseNumber": "V-123/24",
-		"summary": "Landsretten meddeler midlertidigt forbud mod byggearbejde på grund af manglende miljøgodkendelse. Sagen angår fortolkning af miljøbeskyttelseslovens bestemmelser om byggetilladelse i beskyttet naturområde.",
-		"caseType": "injunction",
 		"area": "miljøret",
 		"areaData": null,
+		"caseNumber": "V-123/24",
+		"caseType": "injunction",
+		"court": "Vestre Landsret",
+		"createdAt": "2024-02-29T11:20:00.000Z",
+		"date": "2024-02-28T00:00:00.000Z",
+		"fileName": "data/landsret-kendelse-V-123-24.pdf",
 		"metadata": {
 			"rawText": "Vestre Landsret meddeler i medfør af retsplejelovens § 642 midlertidigt forbud mod fortsættelse af byggearbejde på matr.nr. 15a Sønderholm By, Aalborg. Forbuddet opretholdes indtil endelig afgørelse i hovedsagen om miljøgodkendelse."
 		},
-		"createdAt": "2024-02-29T11:20:00.000Z",
+		"summary": "Landsretten meddeler midlertidigt forbud mod byggearbejde på grund af manglende miljøgodkendelse. Sagen angår fortolkning af miljøbeskyttelseslovens bestemmelser om byggetilladelse i beskyttet naturområde.",
+		"title": "Vestre Landsrets kendelse om midlertidigt forbud mod byggearbejde",
 		"updatedAt": "2024-02-29T11:20:00.000Z"
 	},
 	{
-		"fileName": "data/eu-tribunal-decision-T-45-23.pdf",
-		"title": "General Court Decision - State Aid in Renewable Energy Sector",
-		"date": "2024-05-22T00:00:00.000Z",
-		"court": "General Court of the European Union",
-		"caseNumber": "T-45/23",
-		"summary": "General Court annuls Commission decision approving state aid scheme for wind energy projects. Court finds Commission failed to properly assess compatibility with internal market and environmental protection requirements under Article 107 TFEU.",
-		"caseType": "administrative",
 		"area": "state aid",
 		"areaData": null,
+		"caseNumber": "T-45/23",
+		"caseType": "administrative",
+		"court": "General Court of the European Union",
+		"createdAt": "2024-05-23T16:30:00.000Z",
+		"date": "2024-05-22T00:00:00.000Z",
+		"fileName": "data/eu-tribunal-decision-T-45-23.pdf",
 		"metadata": {
 			"rawText": "THE GENERAL COURT (Third Chamber) hereby: 1. Annuls Commission Decision C(2022) 8934 final of 15 December 2022 on State aid SA.54789 concerning support scheme for offshore wind energy in Denmark; 2. Orders the European Commission to pay the costs."
 		},
-		"createdAt": "2024-05-23T16:30:00.000Z",
+		"summary": "General Court annuls Commission decision approving state aid scheme for wind energy projects. Court finds Commission failed to properly assess compatibility with internal market and environmental protection requirements under Article 107 TFEU.",
+		"title": "General Court Decision - State Aid in Renewable Energy Sector",
 		"updatedAt": "2024-05-23T16:30:00.000Z"
 	},
 	{
-		"fileName": "data/byretten-dom-BS-567-2024.pdf",
-		"title": "Københavns Byrets dom om opsigelse af lejekontrakt",
-		"date": "2024-01-18T00:00:00.000Z",
-		"court": "Københavns Byret",
-		"caseNumber": "BS-567/2024",
-		"summary": "Byretten giver udlejer medhold i opsigelse af lejekontrakt på grund af lejerens misligholdelse. Sagen omhandler fortolkning af lejelovens § 93 om opsigelse for misligholdelse og krav om erstatning.",
-		"caseType": "civil",
 		"area": "lejeret",
 		"areaData": {
 			"costs": "25000"
 		},
+		"caseNumber": "BS-567/2024",
+		"caseType": "civil",
+		"court": "Københavns Byret",
+		"createdAt": "2024-01-19T13:45:00.000Z",
+		"date": "2024-01-18T00:00:00.000Z",
+		"fileName": "data/byretten-dom-BS-567-2024.pdf",
 		"metadata": {
 			"rawText": "Københavns Byret finder, at sagsøgtes gentagne for sene betalinger og støjgener udgør væsentlig misligholdelse af lejeforholdet. Opsigelsen er derfor berettiget efter lejelovens § 93, stk. 1, litra a. Sagsøger tilkendes procesomkostninger på 25.000 kr."
 		},
-		"createdAt": "2024-01-19T13:45:00.000Z",
+		"summary": "Byretten giver udlejer medhold i opsigelse af lejekontrakt på grund af lejerens misligholdelse. Sagen omhandler fortolkning af lejelovens § 93 om opsigelse for misligholdelse og krav om erstatning.",
+		"title": "Københavns Byrets dom om opsigelse af lejekontrakt",
 		"updatedAt": "2024-01-19T13:45:00.000Z"
 	},
 	{
-		"fileName": "data/sø-og-handelsretten-kendelse-SH-89-2024.pdf",
-		"title": "Sø- og Handelsrettens kendelse om konkursbehandling",
-		"date": "2024-04-05T00:00:00.000Z",
-		"court": "Sø- og Handelsretten",
-		"caseNumber": "SH-89/2024",
-		"summary": "Retten afsiger konkursdekret over ApS-selskab og udpeger advokat som kurator. Konkursen skyldes selskabets insolvens og manglende evne til at opfylde forpligtelser overfor kreditorer.",
-		"caseType": "bankruptcy",
 		"area": "konkursret",
 		"areaData": {
 			"debtAmount": "1250000"
 		},
+		"caseNumber": "SH-89/2024",
+		"caseType": "bankruptcy",
+		"court": "Sø- og Handelsretten",
+		"createdAt": "2024-04-06T08:30:00.000Z",
+		"date": "2024-04-05T00:00:00.000Z",
+		"fileName": "data/sø-og-handelsretten-kendelse-SH-89-2024.pdf",
 		"metadata": {
 			"rawText": "Sø- og Handelsretten afsiger konkursdekret over Nordisk Handel ApS, CVR 12345678, og udpeger advokat Jens Nielsen som kurator. Konkursbegæringen er indgivet af Skat Danmark for tilgodehavende på 1.250.000 kr."
 		},
-		"createdAt": "2024-04-06T08:30:00.000Z",
+		"summary": "Retten afsiger konkursdekret over ApS-selskab og udpeger advokat som kurator. Konkursen skyldes selskabets insolvens og manglende evne til at opfylde forpligtelser overfor kreditorer.",
+		"title": "Sø- og Handelsrettens kendelse om konkursbehandling",
 		"updatedAt": "2024-04-06T08:30:00.000Z"
 	},
 	{
-		"fileName": "data/echr-judgment-45678-20.pdf",
-		"title": "European Court of Human Rights - Freedom of Expression Case",
-		"date": "2024-06-12T00:00:00.000Z",
-		"court": "European Court of Human Rights",
-		"caseNumber": "45678/20",
-		"summary": "ECHR finds violation of Article 10 (freedom of expression) in case concerning journalist prosecution for reporting on government corruption. Court awards compensation and orders review of national legislation on media freedom.",
-		"caseType": "human rights",
 		"area": "freedom of expression",
 		"areaData": {
 			"compensation": "15000"
 		},
+		"caseNumber": "45678/20",
+		"caseType": "human rights",
+		"court": "European Court of Human Rights",
+		"createdAt": "2024-06-13T14:20:00.000Z",
+		"date": "2024-06-12T00:00:00.000Z",
+		"fileName": "data/echr-judgment-45678-20.pdf",
 		"metadata": {
 			"rawText": "The Court finds that there has been a violation of Article 10 of the Convention. The prosecution of the applicant for his journalistic activities was not necessary in a democratic society and had a chilling effect on freedom of expression. Just satisfaction: EUR 15,000 for non-pecuniary damage."
 		},
-		"createdAt": "2024-06-13T14:20:00.000Z",
+		"summary": "ECHR finds violation of Article 10 (freedom of expression) in case concerning journalist prosecution for reporting on government corruption. Court awards compensation and orders review of national legislation on media freedom.",
+		"title": "European Court of Human Rights - Freedom of Expression Case",
 		"updatedAt": "2024-06-13T14:20:00.000Z"
 	},
 	{
-		"fileName": "data/klagenævn-afgørelse-2024-456.pdf",
-		"title": "Ankenævnet for Forsikring afgørelse om dækning af vandskade",
-		"date": "2024-07-08T00:00:00.000Z",
-		"court": "Ankenævnet for Forsikring",
-		"caseNumber": "2024-456",
-		"summary": "Ankenævnet omgør forsikringsselskabets afslag på dækning af vandskade. Nævnet finder, at skaden er omfattet af forsikringsdækningen og påbyder udbetalning af erstatning på 180.000 kr.",
-		"caseType": "administrative",
 		"area": "forsikringsret",
 		"areaData": {
 			"compensation": "180000"
 		},
+		"caseNumber": "2024-456",
+		"caseType": "administrative",
+		"court": "Ankenævnet for Forsikring",
+		"createdAt": "2024-07-09T10:15:00.000Z",
+		"date": "2024-07-08T00:00:00.000Z",
+		"fileName": "data/klagenævn-afgørelse-2024-456.pdf",
 		"metadata": {
 			"rawText": "Ankenævnet for Forsikring finder, at vandskade opstået som følge af rørsprængning i kælder er omfattet af forsikringsdækningen. Forsikringsselskabets afslag var ikke berettiget. Erstatning: 180.000 kr. plus renter fra skadetidspunktet."
 		},
-		"createdAt": "2024-07-09T10:15:00.000Z",
+		"summary": "Ankenævnet omgør forsikringsselskabets afslag på dækning af vandskade. Nævnet finder, at skaden er omfattet af forsikringsdækningen og påbyder udbetalning af erstatning på 180.000 kr.",
+		"title": "Ankenævnet for Forsikring afgørelse om dækning af vandskade",
 		"updatedAt": "2024-07-09T10:15:00.000Z"
 	},
 	{
-		"fileName": "data/patentankenævn-afgørelse-P-2024-12.pdf",
-		"title": "Patentankenævnets afgørelse om patentgyldighed for medicinalprodukt",
-		"date": "2024-08-20T00:00:00.000Z",
-		"court": "Patentankenævnet",
-		"caseNumber": "P-2024/12",
-		"summary": "Patentankenævnet finder patent EP1234567 gyldigt og opretholder Patent- og Varemærkestyrelsens afgørelse. Indsigelsen mod patentet afvises, da der ikke er påvist manglende nyhed eller opfindsomhed.",
-		"caseType": "administrative",
 		"area": "patentret",
 		"areaData": {
 			"patentNumber": "EP1234567"
 		},
+		"caseNumber": "P-2024/12",
+		"caseType": "administrative",
+		"court": "Patentankenævnet",
+		"createdAt": "2024-08-21T15:40:00.000Z",
+		"date": "2024-08-20T00:00:00.000Z",
+		"fileName": "data/patentankenævn-afgørelse-P-2024-12.pdf",
 		"metadata": {
 			"rawText": "Patentankenævnet finder, at patent EP1234567 vedrørende ny metode til fremstilling af insulin opfylder betingelserne for patenterbarhed. Indsigelsen fra Generic Pharma A/S afvises. Patentet opretholdes i fuldt omfang."
 		},
-		"createdAt": "2024-08-21T15:40:00.000Z",
+		"summary": "Patentankenævnet finder patent EP1234567 gyldigt og opretholder Patent- og Varemærkestyrelsens afgørelse. Indsigelsen mod patentet afvises, da der ikke er påvist manglende nyhed eller opfindsomhed.",
+		"title": "Patentankenævnets afgørelse om patentgyldighed for medicinalprodukt",
 		"updatedAt": "2024-08-21T15:40:00.000Z"
 	}
 ]

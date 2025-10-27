@@ -221,4 +221,53 @@ export class DocumentResolver {
 			areaData,
 		})
 	}
+
+	/**
+	 * Parse and clean metadata for a single document by ID.
+	 *
+	 * Converts structured key-value pairs in areaData and metadata fields
+	 * from their string representations to clean JSON objects.
+	 *
+	 * @param id - The ID of the document to process.
+	 * @param dryRun - If true, returns what would be changed without making updates.
+	 * @returns Promise<string> - JSON string with parsing result details.
+	 * @throws If the document does not exist or processing fails.
+	 */
+	@Mutation(() => String, { name: 'parseDocumentMetadata' })
+	async parseDocumentMetadata(
+		@Args('id', { type: () => Int }) id: number,
+		@Args('dryRun', { type: () => Boolean, defaultValue: false }) dryRun: boolean,
+	): Promise<string> {
+		const result = await this.documentsService.parseDocumentMetadata(id, dryRun)
+		return JSON.stringify(result, null, 2)
+	}
+
+	/**
+	 * Parse and clean metadata for all documents or a filtered set.
+	 *
+	 * @param dryRun - If true, shows what would be changed without making updates.
+	 * @param limit - Maximum number of documents to process.
+	 * @param hasStringAreaData - Filter for documents with string areaData.
+	 * @param hasStringMetadata - Filter for documents with string metadata.
+	 * @returns Promise<string> - JSON string with processing summary.
+	 */
+	@Mutation(() => String, { name: 'parseAllDocumentsMetadata' })
+	async parseAllDocumentsMetadata(
+		@Args('dryRun', { type: () => Boolean, defaultValue: false }) dryRun: boolean,
+		@Args('limit', { type: () => Int, nullable: true }) limit?: number,
+		@Args('hasStringAreaData', { type: () => Boolean, nullable: true }) hasStringAreaData?: boolean,
+		@Args('hasStringMetadata', { type: () => Boolean, nullable: true }) hasStringMetadata?: boolean,
+	): Promise<string> {
+		const options = {
+			dryRun,
+			limit: limit ?? undefined,
+			filter: {
+				hasStringAreaData: hasStringAreaData ?? undefined,
+				hasStringMetadata: hasStringMetadata ?? undefined,
+			},
+		}
+
+		const result = await this.documentsService.parseAllDocumentsMetadata(options)
+		return JSON.stringify(result, null, 2)
+	}
 }

@@ -123,4 +123,9 @@ coverage/
 .idea/
 .fake
 
+# Videos
+.mp4
+.mov
+
 # End of file
+demo-backend.mp4

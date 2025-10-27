@@ -141,6 +141,30 @@ mutation DeleteDocument($id: Int!) {
 	}
 }
 
+# Parse and clean metadata for a single document by ID
+# Parameters:
+#   - id (Int!): The unique identifier of the document to process
+#   - dryRun (Boolean): If true, returns what would be changed without making updates (default: false)
+# Returns: JSON string with parsing result details
+# Usage: Use this mutation to convert structured key-value pairs to clean JSON objects
+# Example: Parse document 82's metadata
+mutation ParseDocumentMetadata($id: Int!, $dryRun: Boolean) {
+	parseDocumentMetadata(id: $id, dryRun: $dryRun)
+}
+
+# Parse and clean metadata for all documents or a filtered set
+# Parameters:
+#   - dryRun (Boolean): If true, shows what would be changed without making updates (default: false)
+#   - limit (Int): Maximum number of documents to process (optional)
+#   - hasStringAreaData (Boolean): Filter for documents with string areaData (optional)
+#   - hasStringMetadata (Boolean): Filter for documents with string metadata (optional)
+# Returns: JSON string with processing summary
+# Usage: Use this mutation to batch process document metadata
+# Example: Process all documents in dry-run mode
+mutation ParseAllDocumentsMetadata($dryRun: Boolean, $limit: Int, $hasStringAreaData: Boolean, $hasStringMetadata: Boolean) {
+	parseAllDocumentsMetadata(dryRun: $dryRun, limit: $limit, hasStringAreaData: $hasStringAreaData, hasStringMetadata: $hasStringMetadata)
+}
+
 # Example usage with variables:
 # {
 #   "id": 1,
@@ -151,4 +175,17 @@ mutation DeleteDocument($id: Int!) {
 #   "caseNumber": "CA-2025-00123",
 #   "summary": "This appeal challenges the district court ruling.",
 #   "metadata": "{\"notes\":\"uploaded by QA\"}"
+# }
+
+# Example metadata parsing variables:
+# {
+#   "id": 82,
+#   "dryRun": true
+# }
+
+# Example batch processing variables:
+# {
+#   "dryRun": false,
+#   "limit": 10,
+#   "hasStringAreaData": true
 # }
