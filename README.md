@@ -1,6 +1,6 @@
 # LegalEagle API
 
-LegalEagle is a NestJS service for ingesting, enriching, and querying legal documents. It provides a GraphQL API for uploads and metadata management, Prisma/PostgreSQL for persistence, optional OpenAI-powered extraction, and a small REST surface for health checks and (WIP) Swagger documentation.
+LegalEagle is an AI-native NestJS service for ingesting, enriching, and querying legal documents. The platform layers resilient OpenAI integrations on top of a strongly typed GraphQL + Prisma core, folds in batch metadata refiners, and ships with tuned logging, parsing, and seeding utilities to keep latency predictable. When upstream models become unreachable the system gracefully degrades to a deterministic enrichment path—the API keeps working, but uploads take longer and downstream automation loses the richer AI annotations.
 
 ## Core Capabilities
 
@@ -23,21 +23,42 @@ LegalEagle is a NestJS service for ingesting, enriching, and querying legal docu
 ``` markdown
 app/
 ├─ src/
-│  ├─ main.ts                # Application bootstrap, uploads, Swagger
-│  ├─ app.module.ts          # Root NestJS module
+│  ├─ main.ts                        # Application bootstrap, uploads, Swagger
+│  ├─ app.module.ts                  # Root NestJS module
 │  ├─ app.controller.ts/.service.ts  # Health + service overview endpoints
-│  ├─ documents/             # GraphQL types, resolver, and document pipeline
-│  ├─ common/                # Logger helpers, performance utilities
-│  └─ prisma/prisma.service.ts       # Prisma client wrapper
+│  ├─ documents/
+│  │  ├─ documents.module.ts         # Feature module wiring
+│  │  ├─ document.model.ts           # GraphQL object type definitions
+│  │  ├─ document.resolver.ts        # Queries, mutations, upload entrypoints
+│  │  ├─ document.service.ts         # Parsing, AI enrichment, Prisma access
+│  │  └─ queries.graphql             # Playground-ready sample operations
+│  ├─ common/
+│  │  ├─ logger.service.ts           # Centralised Nest logger wrapper
+│  │  ├─ logger.ts                   # Pino/console adapter helpers (WIP Sentry)
+│  │  ├─ performance.ts              # Lightweight timing utilities
+│  │  ├─ filters/                    # (Reserved for HTTP/GraphQL filters)
+│  │  ├─ interceptors/               # (Reserved for response interceptors)
+│  │  └─ middleware/                 # (Reserved for Nest middleware)
+│  └─ prisma/
+│     └─ prisma.service.ts           # Prisma client wrapper
 ├─ prisma/
-│  ├─ schema.prisma          # Postgres data model
-│  └─ seed.ts                # Interactive/dry-run seeding script
+│  ├─ schema.prisma                  # Postgres data model
+│  ├─ seed.ts                        # Interactive/dry-run seeding script
+│  └─ migrations/
+│     ├─ 20251015224108_init_schema/
+│     │  └─ migration.sql            # Legacy baseline
+│     └─ 20251022144636_sync_document_schema/
+│        └─ migration.sql            # Current document shape
 ├─ scripts/
-│  ├─ wait-for-db.sh         # pg_isready loop used during container startup
-│  └─ check-seed.ts          # CLI check to ensure the DB has documents
-├─ data/                     # Sample PDFs/HTML plus JSON/SQL seed sources
-├─ Dockerfile                # Multi-stage build (Node 20 + Prisma runtime deps)
-└─ docker-compose.yml        # App + Postgres stack for local testing
+│  ├─ parse-metadata.ts              # CLI bridge into DocumentService parsers
+│  ├─ wait-for-db.sh                 # pg_isready loop for container startup
+│  └─ check-seed.ts                  # CLI guard to ensure DB has documents
+├─ data/
+│  ├─ case-page.html                 # Sample HTML used in tests & demos
+│  ├─ seed-documents.json            # Primary JSON seed input
+│  └─ seed-documents.sql             # Alternative SQL seed path
+├─ Dockerfile                        # Multi-stage build (Node 20 + Prisma deps)
+└─ docker-compose.yml                # App + Postgres stack for local testing
 ```
 
 ## Prerequisites
@@ -50,8 +71,6 @@ app/
 
 ## Configuration
 
-Create your `.env` by copying `.env.example` and updating the values that matter for your environment:
-
 ```powershell
 cp .env.example .env
 ```
@@ -60,11 +79,8 @@ Key variables:
 
 | Name | Required | Purpose |
 | ---- | -------- | ------- |
-| `DATABASE_URL` | ✅ | Prisma connection string (e.g. `postgresql://postgres:postgres@localhost:5432/legal_eagle?schema=public`). |
 | `NODE_ENV` | ✅ | `development` or `production`; controls GraphQL Playground/introspection. |
 | `PORT` | ➖ | HTTP port (defaults to `3000`). |
-| `OPENAI_API_KEY` | ➖ | Enables OpenAI enrichment for uploaded content. Without it, uploads still succeed but enrichment is skipped. |
-| `OPENAI_CHAT_MODEL` / `MODEL_PRIMARY` | ➖ | Overrides the OpenAI model (default: `gpt-5-mini`). |
 | `OPENAI_EMBEDDING_MODEL` | ➖ | Reserved for embedding workflows; only read when set. |
 
 > Never commit populated `.env` files. Keep secrets local or in your secrets manager.
@@ -168,6 +184,29 @@ When the database is first provisioned, a seeding procedure automatically popula
 4. Seed data: `npm run seed -- --force`
 5. Start application: `npm run start:dev`
 
+## Model and Cost Optimisation
+
+LegalEagle’s enrichment workflow is being instrumented to pick the right OpenAI model for the job: full-context GPT-5 for thorny or lengthy rulings, GPT-5-mini when the task is short-form or can be parallelised, and `o1` for supporting structured reasoning tasks that demand tighter guardrails. A scheduler prototype already batches thousands of low-risk documents overnight on GPT-5-mini to keep spend predictable, while the API keeps a fast-path cached prompt for urgent filings. Dynamic routing is feature-flagged today and will eventually account for prompt size, historical completion quality, and budget targets before selecting a model.
+
+## Future Features and Roadmap
+
+Planned enhancements focus on richer knowledge discovery, lower-cost processing pipelines, and production-grade hardening:
+
+- Relationship modelling between documents, cited articles, and precedents powered by embedding vectors persisted in a dedicated vector database for semantic cross-linking.
+- Intelligent PDF segmentation that shards large filings into logical sections before OCR, enabling parallel AI enrichment runs and lower per-page spending.
+- A focused web UI for counsel and analysts featuring upload workflows, comparison views, and inline AI summaries.
+- Portfolio-level summary statistics, dashboards, and predictive analytics to highlight trends (settlement ranges, ruling tempo, exposure by jurisdiction).
+- Domain connectivity graphs capturing collections, people, organisations, and courts, plus “project” workspaces that bundle artefacts around a single matter.
+- Advanced filtering and querying (facets, semantic search, similarity lookups, temporal slicing) over metadata and embeddings.
+- Continuous performance tuning across the ingestion pipeline, including back-pressure controls and background job orchestration.
+- Full security stack: authentication/authorisation, at-rest and in-transit encryption, per-tenant hashing and salting, and audit-grade logging.
+
+**Production-grade systems on the roadmap:**
+
+- Apryse for precise document structure analysis, splitting, and table extraction.
+- Google Document AI for adaptive form understanding whenever structured layouts are detected.
+- Additional Vertex AI APIs to handle multimodal reasoning for exhibits that contain diagrams, figures, or patent drawings.
+
 ## Working with Documents
 
 Use GraphQL Playground/Apollo Sandbox or any GraphQL client.
@@ -237,7 +276,7 @@ curl.exe -X POST http://localhost:3000/graphql `
   -H "Apollo-Require-Preflight: true" `
   -F 'operations={"query":"mutation($file: Upload!){ uploadDocument(file:$file){ id fileName title summary } }","variables":{"file":null}}' `
   -F 'map={"0":["variables.file"]}' `
-  -F '0=@D:\Repos\Active\Client\legal-eagle\app\data\curia-1.pdf;type=application/pdf'
+  -F '0=@D.\data\curia-1.pdf;type=application/pdf'
 ```
 
 **Parse document metadata:**
@@ -263,18 +302,25 @@ Variables for metadata parsing:
 }
 ```
 
-The metadata parsing operations convert structured key-value pairs in `areaData` and `metadata` fields from their JSON string array format to clean, flat JSON objects. For example:
+The metadata parsing operations convert structured key-value pairs in `areaData` and `metadata` fields from their JSON string array format to clean, flat JSON objects. The strings are preserved in the GraphQL layer (because the current schema exposes these fields as `String`), yet the underlying parser can emit a canonical object representation for downstream jobs.
 
-**Before parsing:**
+**Before parsing (stored as a GraphQL string to satisfy the schema):**
 
 ```json
-"areaData": "[{\"key\":\"parties\",\"value\":\"Agencia Estatal v VT\"},{\"key\":\"referringCourt\",\"value\":\"Juzgado de lo Mercantil No 3\"}]"
+"areaData": "[{\"key\":\"primaryIssue\",\"value\":\"Solar feed-in tariff adjustment\"},{\"key\":\"secondaryIssue\",\"value\":\"Retroactive regulatory clawback\"},{\"key\":\"panel\",\"value\":\"Rossi, Müller, Moreau\"},{\"key\":\"precedentWeight\",\"value\":\"persuasive\"},{\"key\":\"estimatedDamages\",\"value\":\"1450000.00\"},{\"key\":\"binding\",\"value\":\"true\"}]"
 ```
 
-**After parsing:**
+**After parsing (the clean JSON object the parser produces):**
 
 ```json
-"areaData": "{\"parties\":\"Agencia Estatal v VT\",\"referringCourt\":\"Juzgado de lo Mercantil No 3\"}"
+{
+  "primaryIssue": "Solar feed-in tariff adjustment",
+  "secondaryIssue": "Retroactive regulatory clawback",
+  "panel": "Rossi, Müller, Moreau",
+  "precedentWeight": "persuasive",
+  "estimatedDamages": 1450000,
+  "binding": true
+}
 ```
 
 `DocumentService` accepts PDFs or HTML uploads. It normalises the file stream into text, merges any user-supplied metadata, optionally invokes OpenAI for structured extraction, and persists the record via Prisma.
