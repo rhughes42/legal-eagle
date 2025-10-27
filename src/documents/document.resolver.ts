@@ -13,7 +13,7 @@ import { DocumentService } from './document.service'
  */
 
 /**
- * GraphQL resolver for document management in the Pandektes application.
+ * GraphQL resolver for document management in the application.
  *
  * Exposes queries and mutations for listing, retrieving, creating, updating,
  * deleting and uploading documents. This layer translates GraphQL requests

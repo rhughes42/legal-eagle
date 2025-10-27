@@ -4,10 +4,10 @@ import { DocumentService } from './document.service'
 import { PrismaService } from '../prisma/prisma.service'
 
 /**
- * DocumentsModule - Legal Document Management Module for Pandektes System
- *
- * This NestJS module encapsulates all document-related functionality for the Pandektes
- * legal document management system. It provides a cohesive unit that handles document
+ * DocumentsModule - Legal Document Management Module for the legal-eagle system
+
+ * This NestJS module encapsulates all document-related functionality for the legal-eagle
+ * document management platform. It provides a cohesive unit that handles document
  * upload, processing, storage, and retrieval operations with AI-powered metadata extraction.
  *
  * Key Features:
@@ -29,7 +29,7 @@ import { PrismaService } from '../prisma/prisma.service'
  *
  * Usage:
  * Import this module into the main AppModule to enable document management
- * functionality throughout the Pandektes application.
+ * functionality throughout the LegalEagle application.
  *
  * @example
  * ```typescript

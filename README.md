@@ -60,7 +60,7 @@ Key variables:
 
 | Name | Required | Purpose |
 | ---- | -------- | ------- |
-| `DATABASE_URL` | ✅ | Prisma connection string (e.g. `postgresql://postgres:postgres@localhost:5432/database?schema=public`). |
+| `DATABASE_URL` | ✅ | Prisma connection string (e.g. `postgresql://postgres:postgres@localhost:5432/legal_eagle?schema=public`). |
 | `NODE_ENV` | ✅ | `development` or `production`; controls GraphQL Playground/introspection. |
 | `PORT` | ➖ | HTTP port (defaults to `3000`). |
 | `OPENAI_API_KEY` | ➖ | Enables OpenAI enrichment for uploaded content. Without it, uploads still succeed but enrichment is skipped. |

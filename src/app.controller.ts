@@ -29,7 +29,7 @@ import { ApiOverview, AppService } from './app.service'
  *
  * # Response:
  * {
- *   "name": "Pandektes Legal Document Management API",
+ *   "name": "Legal Document Management API",
  *   "version": "1.0.0",
  *   "status": "online",
  *   "graphql": {
@@ -106,7 +106,7 @@ export class AppController {
 				name: {
 					type: 'string',
 					description: 'Application name',
-					example: 'Pandektes Legal Document Management API',
+					example: 'Legal Document Management API',
 				},
 				version: {
 					type: 'string',

@@ -1,7 +1,7 @@
 {
-	"name": "pandektes-challenge",
+	"name": "legal-eagle",
 	"version": "0.0.1",
-	"description": "Lightweight NestJS starter customized for the Pandektes LegalEagle challenge with TypeScript, Prisma ORM, PostgreSQL, and Docker support",
+	"description": "Lightweight NestJS starter customized for the LegalEagle challenge with TypeScript, Prisma ORM, PostgreSQL, and Docker support",
 	"author": "Ryan Hughes <ryan@graphtechnologies.xyz> (https://graphtechnologies.xyz)",
 	"private": true,
 	"scripts": {

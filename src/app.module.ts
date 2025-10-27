@@ -42,7 +42,7 @@ function createGraphQLConfig(): ApolloDriverConfig {
 /**
  * AppModule - Root Application Module
  *
- * The root module of the Pandektes Legal Document Management API application.
+ * The root module of the Legal Document Management API application.
  * This module orchestrates all feature modules and provides the core application
  * infrastructure including GraphQL API, configuration management, and document
  * processing capabilities.

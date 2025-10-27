@@ -17,7 +17,7 @@ import { AppModule } from './app.module'
  * - Maximum files per request: 5
  *
  * Swagger:
- * - Title: "Pandektes LegalEagle API"
+ * - Title: "LegalEagle API"
  * - Description: "REST endpoints for health checks and service discovery."
  * - Version: 1.0.0
  * - UI path: /docs (authorization is persisted in the UI)
@@ -54,7 +54,7 @@ async function bootstrap(): Promise<void> {
 
 	// Register OpenAPI documentation so the Swagger decorators on controllers are applied.
 	const swaggerConfig = new DocumentBuilder()
-		.setTitle('Pandektes LegalEagle API')
+		.setTitle('LegalEagle API')
 		.setDescription('REST endpoints for health checks and service discovery.')
 		.setVersion('1.0.0')
 		.build()
@@ -66,7 +66,7 @@ async function bootstrap(): Promise<void> {
 	const port = Number(process.env.PORT) || 3000
 	await app.listen(port)
 
-	Logger.log(`Pandektes backend listening on http://localhost:${port}`, 'Bootstrap')
+	Logger.log(`LegalEagle backend listening on http://localhost:${port}`, 'Bootstrap')
 	Logger.log(`Swagger UI available at http://localhost:${port}/docs`, 'Bootstrap')
 }
 

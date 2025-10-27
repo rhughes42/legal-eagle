@@ -1,4 +1,4 @@
-// Prisma Database Schema for Pandektes Legal Document Management System
+// Prisma Database Schema for the Legal Document Management System
 // PostgreSQL database with AI-extracted metadata for legal documents
 
 // Dataabase config defaults to port 5432 for PostgreSQL

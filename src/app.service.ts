@@ -17,15 +17,15 @@ export interface ApiOverview {
  */
 @Injectable()
 export class AppService {
-	private readonly documentationUrl = 'https://github.com/Pandektes/legal-eagle'
+	private readonly documentationUrl = 'https://github.com/rhughes42/legal-eagle'
 	private readonly graphqlPath = '/graphql'
-	private readonly serviceName = 'Pandektes LegalEagle API'
+	private readonly serviceName = 'legal-eagle API'
 
 	getOverview(): ApiOverview {
 		return {
 			service: this.serviceName,
 			status: 'ok',
-			message: 'Welcome to the Pandektes LegalEagle backend. Use the GraphQL endpoint for document operations.',
+			message: 'Welcome to the legal-eagle backend. Use the GraphQL endpoint for document operations.',
 			graphqlEndpoint: this.graphqlPath,
 			documentation: this.documentationUrl,
 			timestamp: new Date().toISOString(),

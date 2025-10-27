@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /**
- * Metadata Parser Script for Pandektes Legal Documents
+ * Metadata Parser Script for Legal Documents
  *
  * This script processes documents to parse and clean up their metadata fields,
  * particularly the areaData field which contains structured key-value pairs
@@ -173,7 +173,7 @@ function parseArgs(): { documentId?: number; dryRun: boolean; help: boolean } {
 function showHelp(): void {
 	const scriptName = 'parse-metadata'
 	console.log(`
-Metadata Parser Script for Pandektes Legal Documents
+Metadata Parser Script for Legal Documents
 
 This script processes documents to parse and clean up their metadata fields,
 particularly the areaData field which contains structured key-value pairs

@@ -1,37 +1,37 @@
 services:
-  app:
-    build: .
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - ./.env
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/pandektes?schema=public
-      NODE_ENV: production
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-gpt-5-mini}
-      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}
-    command: >
-      sh -c "npx prisma migrate deploy && node dist/src/main.js"
-    ports:
-      - "3000:3000"
+    app:
+        build: .
+        depends_on:
+            db:
+                condition: service_healthy
+        env_file:
+            - ./.env
+        environment:
+            DATABASE_URL: postgresql://postgres:postgres@db:5432/legal_eagle?schema=public
+            NODE_ENV: production
+            OPENAI_API_KEY: ${OPENAI_API_KEY}
+            OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-gpt-5-mini}
+            OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}
+        command: >
+            sh -c "npx prisma migrate deploy && node dist/src/main.js"
+        ports:
+            - '3000:3000'
 
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: pandektes
-    ports:
-      - "5432:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    db:
+        image: postgres:16-alpine
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: legal_eagle
+        ports:
+            - '5432:5432'
+        volumes:
+            - db-data:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U postgres']
+            interval: 5s
+            timeout: 5s
+            retries: 5
 
 volumes:
-  db-data:
+    db-data:
