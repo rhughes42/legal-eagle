@@ -1,6 +1,6 @@
-# Pandektes LegalEagle API
+# LegalEagle API
 
-Pandektes LegalEagle is a NestJS service for ingesting, enriching, and querying legal documents. It provides a GraphQL API for uploads and metadata management, Prisma/PostgreSQL for persistence, optional OpenAI-powered extraction, and a small REST surface for health checks and Swagger documentation.
+LegalEagle is a NestJS service for ingesting, enriching, and querying legal documents. It provides a GraphQL API for uploads and metadata management, Prisma/PostgreSQL for persistence, optional OpenAI-powered extraction, and a small REST surface for health checks and (WIP) Swagger documentation.
 
 ## Core Capabilities
 
@@ -60,7 +60,7 @@ Key variables:
 
 | Name | Required | Purpose |
 | ---- | -------- | ------- |
-| `DATABASE_URL` | ✅ | Prisma connection string (e.g. `postgresql://postgres:postgres@localhost:5432/pandektes?schema=public`). |
+| `DATABASE_URL` | ✅ | Prisma connection string (e.g. `postgresql://postgres:postgres@localhost:5432/database?schema=public`). |
 | `NODE_ENV` | ✅ | `development` or `production`; controls GraphQL Playground/introspection. |
 | `PORT` | ➖ | HTTP port (defaults to `3000`). |
 | `OPENAI_API_KEY` | ➖ | Enables OpenAI enrichment for uploaded content. Without it, uploads still succeed but enrichment is skipped. |
@@ -237,7 +237,7 @@ curl.exe -X POST http://localhost:3000/graphql `
   -H "Apollo-Require-Preflight: true" `
   -F 'operations={"query":"mutation($file: Upload!){ uploadDocument(file:$file){ id fileName title summary } }","variables":{"file":null}}' `
   -F 'map={"0":["variables.file"]}' `
-  -F '0=@D:\Repos\Active\Client\Pandektes\app\data\curia-1.pdf;type=application/pdf'
+  -F '0=@D:\Repos\Active\Client\legal-eagle\app\data\curia-1.pdf;type=application/pdf'
 ```
 
 **Parse document metadata:**
