@@ -25,18 +25,18 @@ import { AppLogger } from './common/logger.service'
  * ```
  */
 function createGraphQLConfig(): ApolloDriverConfig {
-    return {
-        driver: ApolloDriver,
-        autoSchemaFile: true,
-        playground: process.env.NODE_ENV !== 'production',
-        introspection: process.env.NODE_ENV !== 'production',
-        context: ({ req, res }: { req: Request; res: Response }) => ({ req, res }),
-        formatError: (error) => ({
-            message: error.message,
-            code: error.extensions?.code,
-            path: error.path,
-        }),
-    }
+	return {
+		driver: ApolloDriver,
+		autoSchemaFile: true,
+		playground: process.env.NODE_ENV !== 'production',
+		introspection: process.env.NODE_ENV !== 'production',
+		context: ({ req, res }: { req: Request; res: Response }) => ({ req, res }),
+		formatError: (error) => ({
+			message: error.message,
+			code: error.extensions?.code,
+			path: error.path,
+		}),
+	}
 }
 
 /**
@@ -106,66 +106,66 @@ function createGraphQLConfig(): ApolloDriverConfig {
  * @see {@link https://www.apollographql.com/docs/apollo-server/} Apollo Server Documentation
  */
 @Module({
-    imports: [
-        /**
-         * ConfigModule - Global Configuration Management
-         *
-         * Provides environment-based configuration management throughout
-         * the application. Configured as global to avoid repeated imports.
-         *
-         * Features:
-         * - Environment variable loading
-         * - Configuration validation
-         * - Type-safe configuration access
-         */
-        ConfigModule.forRoot({
-            isGlobal: true,
-            envFilePath: ['.env.local', '.env'],
-            cache: true,
-        }),
+	imports: [
+		/**
+		 * ConfigModule - Global Configuration Management
+		 *
+		 * Provides environment-based configuration management throughout
+		 * the application. Configured as global to avoid repeated imports.
+		 *
+		 * Features:
+		 * - Environment variable loading
+		 * - Configuration validation
+		 * - Type-safe configuration access
+		 */
+		ConfigModule.forRoot({
+			isGlobal: true,
+			envFilePath: ['.env.local', '.env'],
+			cache: true,
+		}),
 
-        /**
-         * GraphQLModule - Apollo GraphQL Server
-         *
-         * Configures the GraphQL API endpoint with Apollo Server.
-         * Uses code-first approach with automatic schema generation
-         * from TypeScript decorators and metadata.
-         *
-         * Configuration includes:
-         * - Automatic schema file generation
-         * - Environment-specific playground access
-         * - CORS configuration for web clients
-         * - Custom error formatting
-         * - Request context injection
-         */
-        GraphQLModule.forRoot<ApolloDriverConfig>(createGraphQLConfig()),
+		/**
+		 * GraphQLModule - Apollo GraphQL Server
+		 *
+		 * Configures the GraphQL API endpoint with Apollo Server.
+		 * Uses code-first approach with automatic schema generation
+		 * from TypeScript decorators and metadata.
+		 *
+		 * Configuration includes:
+		 * - Automatic schema file generation
+		 * - Environment-specific playground access
+		 * - CORS configuration for web clients
+		 * - Custom error formatting
+		 * - Request context injection
+		 */
+		GraphQLModule.forRoot<ApolloDriverConfig>(createGraphQLConfig()),
 
-        /**
-         * DocumentsModule - Document Management Features
-         *
-         * Provides comprehensive document management capabilities
-         * including upload, processing, storage, and retrieval.
-         */
-        DocumentsModule,
-    ],
-    controllers: [
-        /**
-         * AppController - Application Root Controller
-         *
-         * Handles application-level endpoints including health checks,
-         * API discovery, and service status information.
-         */
-        AppController,
-    ],
-    providers: [
-        /**
-         * AppService - Core Application Service
-         *
-         * Provides business logic for application-level operations
-         * and service management functionality.
-         */
-        AppService,
-        AppLogger,
-    ],
+		/**
+		 * DocumentsModule - Document Management Features
+		 *
+		 * Provides comprehensive document management capabilities
+		 * including upload, processing, storage, and retrieval.
+		 */
+		DocumentsModule,
+	],
+	controllers: [
+		/**
+		 * AppController - Application Root Controller
+		 *
+		 * Handles application-level endpoints including health checks,
+		 * API discovery, and service status information.
+		 */
+		AppController,
+	],
+	providers: [
+		/**
+		 * AppService - Core Application Service
+		 *
+		 * Provides business logic for application-level operations
+		 * and service management functionality.
+		 */
+		AppService,
+		AppLogger,
+	],
 })
 export class AppModule {}

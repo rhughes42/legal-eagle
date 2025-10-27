@@ -3,57 +3,57 @@ import { ObjectType, Field, Int, GraphQLISODateTime } from '@nestjs/graphql'
 /** GraphQL type representing a document and its metadata. */
 @ObjectType('Document')
 export class DocumentType {
-    /** Unique id. */
-    @Field(() => Int)
-    id!: number
+	/** Unique id. */
+	@Field(() => Int)
+	id!: number
 
-    /** Original uploaded filename. */
-    @Field(() => String)
-    fileName!: string
+	/** Original uploaded filename. */
+	@Field(() => String)
+	fileName!: string
 
-    /** Optional title. */
-    @Field(() => String, { nullable: true })
-    title: string | null = null
+	/** Optional title. */
+	@Field(() => String, { nullable: true })
+	title: string | null = null
 
-    /** Optional date (ISO). */
-    @Field(() => GraphQLISODateTime, { nullable: true })
-    date: Date | null = null
+	/** Optional date (ISO). */
+	@Field(() => GraphQLISODateTime, { nullable: true })
+	date: Date | null = null
 
-    /** Optional court name. */
-    @Field(() => String, { nullable: true })
-    court: string | null = null
+	/** Optional court name. */
+	@Field(() => String, { nullable: true })
+	court: string | null = null
 
-    /** Optional case/reference number. */
-    @Field(() => String, { nullable: true })
-    caseNumber: string | null = null
+	/** Optional case/reference number. */
+	@Field(() => String, { nullable: true })
+	caseNumber: string | null = null
 
-    /** Optional short description. */
-    @Field(() => String, { nullable: true })
-    summary: string | null = null
+	/** Optional short description. */
+	@Field(() => String, { nullable: true })
+	summary: string | null = null
 
-    /** Optional high-level case classification. */
-    @Field(() => String, { nullable: true })
-    caseType: string | null = null
+	/** Optional high-level case classification. */
+	@Field(() => String, { nullable: true })
+	caseType: string | null = null
 
-    /** Optional legal area taxonomy. */
-    @Field(() => String, { nullable: true })
-    area: string | null = null
+	/** Optional legal area taxonomy. */
+	@Field(() => String, { nullable: true })
+	area: string | null = null
 
-    /** Optional area-specific JSON string. */
-    @Field(() => String, { nullable: true })
-    areaData: string | null = null
+	/** Optional area-specific JSON string. */
+	@Field(() => String, { nullable: true })
+	areaData: string | null = null
 
-    /** Optional metadata as JSON string. */
-    @Field(() => String, { nullable: true })
-    metadata: string | null = null
+	/** Optional metadata as JSON string. */
+	@Field(() => String, { nullable: true })
+	metadata: string | null = null
 
-    /** Creation timestamp (ISO). */
-    @Field(() => GraphQLISODateTime)
-    createdAt!: Date
+	/** Creation timestamp (ISO). */
+	@Field(() => GraphQLISODateTime)
+	createdAt!: Date
 
-    /** Last update timestamp (ISO). */
-    @Field(() => GraphQLISODateTime)
-    updatedAt!: Date
+	/** Last update timestamp (ISO). */
+	@Field(() => GraphQLISODateTime)
+	updatedAt!: Date
 }
 
 /* Example

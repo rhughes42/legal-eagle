@@ -10,7 +10,6 @@ COPY data data
 RUN npm install --legacy-peer-deps --silent
 
 COPY tsconfig.json tsconfig.json
-COPY scripts/wait-for-db.sh ./wait-for-db.sh
 COPY src src
 
 RUN npm run build
@@ -20,16 +19,17 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Install runtime dependencies required by Prisma on Alpine
-RUN apk add --no-cache openssl ca-certificates libc6-compat
+RUN apk add --no-cache openssl ca-certificates libc6-compat postgresql-client
 
 COPY --from=build /app/package*.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/prisma ./prisma
-COPY --from=build /app/scripts ./scripts
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/wait-for-db.sh ./wait-for-db.sh
+COPY --from=build /app/scripts ./scripts
 
-RUN chmod +x ./wait-for-db.sh
+# Normalize line endings for shell scripts and ensure executable bit
+RUN sed -i 's/\r$//' ./scripts/wait-for-db.sh && \
+    chmod +x ./scripts/wait-for-db.sh
 
 # Skip npm prune in production image to avoid peer-dependency resolution errors during prune.
 # The build stage already installs dependencies with --legacy-peer-deps and the production image

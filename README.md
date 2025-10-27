@@ -171,6 +171,30 @@ docker compose up -d --build
 
 The Compose file provisions a Postgres instance and wires the Nest server to it. Update `.env` with the connection string shown in `docker-compose.yml` (typically `postgresql://postgres:postgres@localhost:5432/pandektes` when using the forwarded port).
 
+### Start Postgres only (for tests or local DB)
+
+If you want to run only the Postgres service (useful for running e2e tests or connecting from a host Node process), start just the `db` service declared in `docker-compose.yml`:
+
+```powershell
+# start the Postgres container in the background
+docker compose up -d db
+
+# stop and remove containers (when finished)
+docker compose down
+```
+
+After starting the DB container, ensure migrations are applied before running tests or the app from the host:
+
+```powershell
+npm run prisma:generate
+npm run prisma:migrate
+
+# then run tests or start the app
+npm run test
+# or
+npm run start:dev
+```
+
 ## Notes Regarding Startup Order
 
 ------------------------

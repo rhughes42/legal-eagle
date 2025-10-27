@@ -4,18 +4,18 @@
 # Returns: Array of Document objects with all available fields
 # Usage: Use this query to fetch the complete list of documents for display in lists or tables
 query GetAllDocuments {
-    documents {
-        id
-        fileName
-        title
-        date
-        court
-        caseNumber
-        summary
-        metadata
-        createdAt
-        updatedAt
-    }
+	documents {
+		id
+		fileName
+		title
+		date
+		court
+		caseNumber
+		summary
+		metadata
+		createdAt
+		updatedAt
+	}
 }
 
 # Retrieves a single document by its unique identifier
@@ -24,18 +24,18 @@ query GetAllDocuments {
 # Returns: Single Document object with all fields, or null if not found
 # Usage: Use this query when displaying document details or editing a specific document
 query GetDocument($id: Int!) {
-    document(id: $id) {
-        id
-        fileName
-        title
-        date
-        court
-        caseNumber
-        summary
-        metadata
-        createdAt
-        updatedAt
-    }
+	document(id: $id) {
+		id
+		fileName
+		title
+		date
+		court
+		caseNumber
+		summary
+		metadata
+		createdAt
+		updatedAt
+	}
 }
 
 # Creates a new document record in the database
@@ -50,34 +50,34 @@ query GetDocument($id: Int!) {
 # Returns: The newly created Document object with generated id, createdAt, and updatedAt fields
 # Usage: Use this mutation when uploading new documents to the system
 mutation CreateDocument(
-    $fileName: String!
-    $title: String
-    $date: DateTime
-    $court: String
-    $caseNumber: String
-    $summary: String
-    $metadata: String
+	$fileName: String!
+	$title: String
+	$date: DateTime
+	$court: String
+	$caseNumber: String
+	$summary: String
+	$metadata: String
 ) {
-    createDocument(
-        fileName: $fileName
-        title: $title
-        date: $date
-        court: $court
-        caseNumber: $caseNumber
-        summary: $summary
-        metadata: $metadata
-    ) {
-        id
-        fileName
-        title
-        date
-        court
-        caseNumber
-        summary
-        metadata
-        createdAt
-        updatedAt
-    }
+	createDocument(
+		fileName: $fileName
+		title: $title
+		date: $date
+		court: $court
+		caseNumber: $caseNumber
+		summary: $summary
+		metadata: $metadata
+	) {
+		id
+		fileName
+		title
+		date
+		court
+		caseNumber
+		summary
+		metadata
+		createdAt
+		updatedAt
+	}
 }
 
 # Updates an existing document record with new information
@@ -94,36 +94,36 @@ mutation CreateDocument(
 # Usage: Use this mutation to modify existing document information
 # Note: Only provided fields will be updated; omitted fields remain unchanged
 mutation UpdateDocument(
-    $id: Int!
-    $fileName: String
-    $title: String
-    $date: DateTime
-    $court: String
-    $caseNumber: String
-    $summary: String
-    $metadata: String
+	$id: Int!
+	$fileName: String
+	$title: String
+	$date: DateTime
+	$court: String
+	$caseNumber: String
+	$summary: String
+	$metadata: String
 ) {
-    updateDocument(
-        id: $id
-        fileName: $fileName
-        title: $title
-        date: $date
-        court: $court
-        caseNumber: $caseNumber
-        summary: $summary
-        metadata: $metadata
-    ) {
-        id
-        fileName
-        title
-        date
-        court
-        caseNumber
-        summary
-        metadata
-        createdAt
-        updatedAt
-    }
+	updateDocument(
+		id: $id
+		fileName: $fileName
+		title: $title
+		date: $date
+		court: $court
+		caseNumber: $caseNumber
+		summary: $summary
+		metadata: $metadata
+	) {
+		id
+		fileName
+		title
+		date
+		court
+		caseNumber
+		summary
+		metadata
+		createdAt
+		updatedAt
+	}
 }
 
 # Permanently removes a document record from the database
@@ -133,12 +133,12 @@ mutation UpdateDocument(
 # Usage: Use this mutation to remove documents from the system
 # Warning: This operation is irreversible and will permanently delete the document record
 mutation DeleteDocument($id: Int!) {
-    deleteDocument(id: $id) {
-        id
-        fileName
-        title
-        summary
-    }
+	deleteDocument(id: $id) {
+		id
+		fileName
+		title
+		summary
+	}
 }
 
 # Example usage with variables:

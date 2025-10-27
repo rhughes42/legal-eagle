@@ -4,14 +4,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - ./.env
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/pandektes?schema=public
       NODE_ENV: production
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-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}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-gpt-5-mini}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}
     command: >
-      sh -c "./wait-for-db.sh && npx prisma migrate deploy && node dist/main"
+      sh -c "npx prisma migrate deploy && node dist/src/main.js"
     ports:
       - "3000:3000"
 

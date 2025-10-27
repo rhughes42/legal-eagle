@@ -246,8 +246,8 @@ No security issues found in static code analysis.
 ## Resources
 
 - **Full Review:** See [PROJECT_REVIEW.md](./PROJECT_REVIEW.md) for comprehensive analysis
-- **Environment Setup:** See [.env.example](./.env.example) for configuration
-- **Getting Started:** See [README.md](./README.md) for setup instructions
+- **Environment Setup:** See [.env.example](../../.env.example) for configuration
+- **Getting Started:** See [README.md](../../README.md) for setup instructions
 
 ---
 

@@ -51,21 +51,21 @@ import { PrismaService } from '../prisma/prisma.service'
  * @requires PrismaService
  */
 @Module({
-    /**
-     * Providers array defines the services that can be injected within this module.
-     * These providers form the core of the document management functionality:
-     *
-     * - DocumentResolver: Handles GraphQL queries and mutations for document operations
-     * - DocumentService: Contains business logic for document processing and AI integration
-     * - PrismaService: Provides database access layer for PostgreSQL operations
-     */
-    providers: [DocumentResolver, DocumentService, PrismaService],
+	/**
+	 * Providers array defines the services that can be injected within this module.
+	 * These providers form the core of the document management functionality:
+	 *
+	 * - DocumentResolver: Handles GraphQL queries and mutations for document operations
+	 * - DocumentService: Contains business logic for document processing and AI integration
+	 * - PrismaService: Provides database access layer for PostgreSQL operations
+	 */
+	providers: [DocumentResolver, DocumentService, PrismaService],
 
-    /**
-     * Exports array makes services available for injection in other modules.
-     * DocumentService is exported to allow other modules to access document
-     * functionality programmatically (e.g., for batch processing, integrations).
-     */
-    exports: [DocumentService],
+	/**
+	 * Exports array makes services available for injection in other modules.
+	 * DocumentService is exported to allow other modules to access document
+	 * functionality programmatically (e.g., for batch processing, integrations).
+	 */
+	exports: [DocumentService],
 })
 export class DocumentsModule {}

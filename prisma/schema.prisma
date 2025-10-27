@@ -1,42 +1,37 @@
 // Prisma Database Schema for Pandektes Legal Document Management System
 // PostgreSQL database with AI-extracted metadata for legal documents
 
-/**
- * Database Connection
- */
+// Dataabase config defaults to port 5432 for PostgreSQL
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
-/**
- * Prisma Client Generator
- */
 generator client {
     provider = "prisma-client-js"
 }
 
 /**
- * Document Model:
- * Represents legal documents with AI-extracted metadata for efficient storage and retrieval.
+ * The Document model represents legal documents uploaded to the system.
+ * It includes fields for both extracted metadata and AI-generated insights.
  */
 model Document {
     id         Int       @id @default(autoincrement())
     fileName   String // Original uploaded filename
-    title      String? // AI-extracted document title
-    date       DateTime? // AI-extracted document date (filing, judgment, etc.)
-    court      String? // AI-extracted court or jurisdiction
-    caseNumber String? // AI-extracted case or docket number
-    summary    String? // AI-generated document summary
+    title      String? // [Extracted] Document title
+    date       DateTime? // [Extracted] Document date (filing, judgment, etc.)
+    court      String? // [Extracted] Court or jurisdiction
+    caseNumber String? // [Extracted] Case or docket number
+    summary    String? // [Generated] Document summary
 
-    // High-level classification
+    // [Generated] High-level classification
     caseType String? // e.g., civil, criminal, family, intellectual property
     area     String? // e.g., employment, intellectual property, contracts, family law, criminal law
 
-    // Area-specific details (flexible key/value JSON data, e.g., compensation, patentNumber, costs, debtAmount)
+    // [Generated] Area-specific details (flexible key/value JSON data, e.g., compensation, patentNumber, costs, debtAmount)
     areaData Json?
 
-    metadata  Json? // Additional AI-extracted metadata
+    metadata  Json? // [Generated] Additional AI-extracted metadata
     createdAt DateTime @default(now()) // Record creation timestamp
     updatedAt DateTime @updatedAt // Record update timestamp
 }
