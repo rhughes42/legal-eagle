@@ -47,10 +47,7 @@
 #   WAIT_DB_HOST=db.example.com WAIT_DB_PORT=5433 WAIT_DB_ATTEMPTS=60 \
 #     WAIT_DB_INTERVAL=5 ./wait-for-db.sh
 #
-# Notes:
-#   - This script performs a lightweight readiness check and does not verify
-#     application-level connectivity or schema state. Use it as a simple guard
-#     to reduce transient connection failures at startup.
+# Note: This script performs a lightweight readiness check and does not verify application-level connectivity or schema state. Use it as a simple guard to reduce transient connection failures at startup.
 
 set -eu
 
@@ -64,10 +61,10 @@ attempts=${WAIT_DB_ATTEMPTS:-30}
 interval=${WAIT_DB_INTERVAL:-2}
 
 echo "Waiting for Postgres at ${host}:${port} (user=${user})..."
-i=0
+attempt=0
 until pg_isready -h "$host" -p "$port" -U "$user" >/dev/null 2>&1; do
-  i=$((i+1))
-  if [ "$i" -ge "$attempts" ]; then
+  attempt=$((attempt+1))
+  if [ "$attempt" -ge "$attempts" ]; then
     echo "❌ Timed out waiting for Postgres at ${host}:${port} after ${attempts} attempts!"
     exit 1
   fi
