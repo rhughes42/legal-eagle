@@ -30,7 +30,7 @@
 		"check-ts-build": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {
-		"@apollo/server": "^5.0.0",
+		"@apollo/server": "^5.5.0",
 		"@as-integrations/express5": "^1.1.2",
 		"@nestjs/apollo": "^13.2.1",
 		"@nestjs/common": "^11.0.1",
@@ -54,7 +54,7 @@
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.2.0",
 		"@eslint/js": "^9.18.0",
-		"@nestjs/cli": "^11.0.0",
+		"@nestjs/cli": "^11.0.16",
 		"@nestjs/schematics": "^11.0.0",
 		"@nestjs/testing": "^11.0.1",
 		"@types/express": "^5.0.0",
