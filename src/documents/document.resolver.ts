@@ -2,6 +2,8 @@ import { Args, GraphQLISODateTime, Int, Mutation, Query, Resolver } from '@nestj
 import { GraphQLUpload, type FileUpload } from 'graphql-upload-ts'
 import { DocumentType } from './document.model'
 import { DocumentService } from './document.service'
+import { CreateRelationInput, DocumentRelationType, DocumentSegmentType, SimilarDocumentType } from './dto/document-knowledge.dto'
+import { DocumentSearchFilterInput, DocumentSearchResult } from './dto/document-search.dto'
 
 /**
  * Developer notes:
@@ -269,5 +271,47 @@ export class DocumentResolver {
 
 		const result = await this.documentsService.parseAllDocumentsMetadata(options)
 		return JSON.stringify(result, null, 2)
+	}
+
+	@Query(() => DocumentSearchResult, { name: 'searchDocuments' })
+	async searchDocuments(
+		@Args('filters', { type: () => DocumentSearchFilterInput, nullable: true }) filters?: DocumentSearchFilterInput,
+		@Args('limit', { type: () => Int, defaultValue: 25 }) limit?: number,
+		@Args('offset', { type: () => Int, defaultValue: 0 }) offset?: number,
+	): Promise<DocumentSearchResult> {
+		return this.documentsService.searchDocuments(filters ?? {}, limit, offset)
+	}
+
+	@Query(() => [DocumentSegmentType], { name: 'documentSegments' })
+	async documentSegments(@Args('documentId', { type: () => Int }) documentId: number): Promise<DocumentSegmentType[]> {
+		return this.documentsService.getSegments(documentId)
+	}
+
+	@Query(() => [DocumentRelationType], { name: 'documentRelations' })
+	async documentRelations(@Args('documentId', { type: () => Int }) documentId: number): Promise<DocumentRelationType[]> {
+		return this.documentsService.getRelations(documentId)
+	}
+
+	@Query(() => [SimilarDocumentType], { name: 'similarDocuments' })
+	async similarDocuments(
+		@Args('documentId', { type: () => Int }) documentId: number,
+		@Args('limit', { type: () => Int, defaultValue: 5 }) limit?: number,
+	): Promise<SimilarDocumentType[]> {
+		const results = await this.documentsService.findSimilarDocuments(documentId, limit)
+		return results.map((item) => ({
+			document: item.document,
+			score: item.score,
+		}))
+	}
+
+	@Mutation(() => DocumentRelationType, { name: 'linkDocuments' })
+	async linkDocuments(@Args('input') input: CreateRelationInput): Promise<DocumentRelationType> {
+		return this.documentsService.createRelation(input)
+	}
+
+	@Mutation(() => Boolean, { name: 'refreshDocumentEmbedding' })
+	async refreshDocumentEmbedding(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
+		const result = await this.documentsService.refreshEmbedding(id)
+		return Boolean(result)
 	}
 }

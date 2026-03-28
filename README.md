@@ -201,6 +201,69 @@ Planned enhancements focus on richer knowledge discovery, lower-cost processing 
 - Continuous performance tuning across the ingestion pipeline, including back-pressure controls and background job orchestration.
 - Full security stack: authentication/authorisation, at-rest and in-transit encryption, per-tenant hashing and salting, and audit-grade logging.
 
+## Roadmap Deliverables Implemented
+
+Recent upgrades land several roadmap items to make LegalEagle feel more like the future system described above:
+
+- **Document graph and similarity:** create relationships between filings with `linkDocuments`, and surface `similarDocuments` powered by persisted embeddings (fallbacks keep working without OpenAI).
+- **Segment-aware ingestion:** uploads now auto-segment PDF/HTML text into ordered sections for downstream enrichment and faceted analytics.
+- **Advanced filtering:** `searchDocuments` provides full-text filters (case type, court, date ranges, metadata/summary presence) plus facets for quick drill-down.
+- **Analytics snapshot:** `documentAnalytics` returns portfolio-level metrics, monthly trends, and top areas/case types to power dashboards.
+- **Knowledge refresh hooks:** `refreshDocumentEmbedding` rebuilds vectors if metadata changes; segments and embeddings are captured automatically on upload.
+
+Example GraphQL operations:
+
+```graphql
+# Faceted search with temporal filter
+query SearchDocuments {
+  searchDocuments(
+    filters: { query: "renewable", area: "energy", dateFrom: "2025-01-01T00:00:00.000Z", hasSummary: true }
+    limit: 10
+  ) {
+    total
+    items { id title area caseType summary }
+    caseTypeFacets { key count }
+    areaFacets { key count }
+    courtFacets { key count }
+  }
+}
+
+# Portfolio analytics snapshot
+query {
+  documentAnalytics {
+    totalDocuments
+    documentsWithSummary
+    documentsWithMetadata
+    relationCount
+    segmentCount
+    newestDocument
+    topAreas { key count }
+    topCaseTypes { key count }
+    monthlyTrend { period count }
+  }
+}
+
+# Relationship graph + similarity
+mutation {
+  linkDocuments(input: { sourceId: 1, targetId: 2, relationType: "cites", description: "Appeal of prior ruling" }) {
+    id
+    relationType
+  }
+}
+
+query {
+  similarDocuments(documentId: 1, limit: 3) {
+    score
+    document { id title caseNumber }
+  }
+  documentRelations(documentId: 1) {
+    sourceId
+    targetId
+    relationType
+  }
+}
+```
+
 **Production-grade systems on the roadmap:**
 
 - Apryse for precise document structure analysis, splitting, and table extraction.
