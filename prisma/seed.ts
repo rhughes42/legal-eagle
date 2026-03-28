@@ -199,8 +199,9 @@ async function main(): Promise<void> {
 	const force = argv.includes('--force') || argv.includes('--yes') || argv.includes('-y')
 	const dryRun = argv.includes('--dry-run') || argv.includes('--dryrun')
 	const upsertMode = argv.includes('--upsert') || argv.includes('--upsert-by-filename')
+	const allowUnsafeSql = argv.includes('--allow-unsafe-sql')
 
-	LogDebug(`⚙️  Flags - force: ${force}, dryRun: ${dryRun}, upsertMode: ${upsertMode}`)
+	LogDebug(`⚙️  Flags - force: ${force}, dryRun: ${dryRun}, upsertMode: ${upsertMode}, allowUnsafeSql: ${allowUnsafeSql}`)
 
 	// Function to perform the actual seeding
 	async function doSeed(): Promise<void> {
@@ -216,6 +217,17 @@ async function main(): Promise<void> {
 				LogInfo('[dry-run] Would execute SQL seed (no DB changes).')
 				await prisma.$disconnect()
 				return
+			}
+
+			// Require explicit opt-in flag for raw SQL execution to prevent accidental or
+			// tampered-file execution. Executing arbitrary SQL can modify or destroy data.
+			if (!allowUnsafeSql) {
+				LogError(
+					'❌ Raw SQL seeding requires the --allow-unsafe-sql flag. ' +
+						'Only use this flag in trusted environments with verified seed files.',
+				)
+				await prisma.$disconnect()
+				process.exit(1)
 			}
 
 			// Attempt to run the actual SQL
@@ -354,7 +366,7 @@ async function main(): Promise<void> {
 		} else {
 			LogInfo(`  Source: JSON file (${seedData.length} records)`)
 		}
-		LogInfo('  Flags: ' + JSON.stringify({ force, dryRun, upsertMode }))
+		LogInfo('  Flags: ' + JSON.stringify({ force, dryRun, upsertMode, allowUnsafeSql }))
 		await doSeed()
 		return
 	}

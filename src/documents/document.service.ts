@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // Core NestJS imports
@@ -682,27 +682,13 @@ export class DocumentService {
 	// ===== PRIVATE MAPPING METHODS =====
 
 	/**
-	 * Generates a GUID using crypto.randomUUID if available, otherwise falls back to manual generation
+	 * Generates a cryptographically secure GUID using the Web Crypto API.
 	 *
-	 * @returns Function that generates a GUID string
+	 * @returns Function that generates a UUID v4 string
 	 */
 	private generateGuid() {
 		return (): string => {
-			try {
-				// Node and modern runtimes.
-				const rnd = (globalThis as any).crypto?.randomUUID
-				if (typeof rnd === 'function') return rnd()
-			} catch {
-				this.logger.warn('crypto.randomUUID is not available; falling back to manual GUID generation.')
-			}
-			// Fallback
-			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-				const r = (Math.random() * 16) | 0
-				const v = c === 'x' ? r : (r & 0x3) | 0x8
-
-				this.logger.debug(`🔢 Generated GUID: ${v}`)
-				return v.toString(16)
-			})
+			return crypto.randomUUID()
 		}
 	}
 
@@ -1207,7 +1193,8 @@ export class DocumentService {
 			this.logger.debug(`✅ extractPdfText: Extracted ${result.text.length} characters of text from PDF.`)
 			return result.text.trim()
 		} catch (error) {
-			throw new BadRequestException(`❌ Failed to parse PDF: ${String(error)}`)
+			this.logger.error('❌ extractPdfText: Failed to parse PDF', error)
+			throw new BadRequestException('Failed to parse PDF file.')
 		}
 	}
 
@@ -1251,7 +1238,8 @@ export class DocumentService {
 			// Normalize whitespace and trim
 			return textContent.replace(/\s+/g, ' ').trim()
 		} catch (error) {
-			throw new BadRequestException(`❌ Failed to parse HTML: ${String(error)}`)
+			this.logger.error('❌ extractHtmlText: Failed to parse HTML', error)
+			throw new BadRequestException('Failed to parse HTML file.')
 		}
 	}
 
@@ -1391,7 +1379,7 @@ export class DocumentService {
 				this.logger.log(`✅ parseDocumentMetadata: Successfully updated document ${documentId}`)
 			} catch (error) {
 				this.logger.error(`❌ parseDocumentMetadata: Failed to update document ${documentId}`, error)
-				throw new BadRequestException(`Failed to update document metadata: ${String(error)}`)
+				throw new BadRequestException('Failed to update document metadata.')
 			}
 		}
 
@@ -1497,7 +1485,7 @@ export class DocumentService {
 					documentId: document.id,
 					fileName: document.fileName,
 					hasChanges: false,
-					error: String(error),
+					error: 'Failed to process document metadata.',
 				})
 				this.logger.error(`❌ parseAllDocumentsMetadata: Failed to process document ${document.id}`, error)
 			}
