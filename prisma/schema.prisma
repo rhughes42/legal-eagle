@@ -34,4 +34,52 @@ model Document {
     metadata  Json? // [Generated] Additional AI-extracted metadata
     createdAt DateTime @default(now()) // Record creation timestamp
     updatedAt DateTime @updatedAt // Record update timestamp
+
+    // Relationships and analytics
+    segments      DocumentSegment[]
+    embeddings    DocumentEmbedding[]
+    outgoingLinks DocumentRelation[] @relation("RelationSource")
+    incomingLinks DocumentRelation[] @relation("RelationTarget")
+}
+
+/// Segmented portions of a document used for partial enrichment and analytics.
+model DocumentSegment {
+    id         Int      @id @default(autoincrement())
+    document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+    documentId Int
+    title      String?
+    content    String
+    tokenCount Int?
+    position   Int      // Stable ordering of segments within the document
+    createdAt  DateTime @default(now())
+
+    @@index([documentId, position])
+}
+
+/// Persisted embeddings for similarity search and cross-linking.
+model DocumentEmbedding {
+    id         Int      @id @default(autoincrement())
+    document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+    documentId Int
+    model      String?
+    embedding  Json?   // Numeric vector stored as JSON to keep Postgres portable
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    @@index([documentId])
+}
+
+/// Graph of relationships between documents (citations, references, precedents).
+model DocumentRelation {
+    id           Int      @id @default(autoincrement())
+    source       Document @relation("RelationSource", fields: [sourceId], references: [id], onDelete: Cascade)
+    sourceId     Int
+    target       Document @relation("RelationTarget", fields: [targetId], references: [id], onDelete: Cascade)
+    targetId     Int
+    relationType String
+    description  String?
+    createdAt    DateTime @default(now())
+
+    @@index([sourceId])
+    @@index([targetId])
 }

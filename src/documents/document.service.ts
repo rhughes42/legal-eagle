@@ -6,7 +6,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException, UnsupportedMediaTypeException } from '@nestjs/common'
 
 // Database imports
-import type { Document as PrismaDocument } from '@prisma/client'
+import type { Document as PrismaDocument, DocumentEmbedding, DocumentRelation, DocumentSegment } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 
 // External library imports
@@ -24,6 +24,7 @@ import type { Readable } from 'node:stream'
 // Local imports
 import { PrismaService } from '../prisma/prisma.service'
 import { DocumentType } from './document.model'
+import { buildLocalEmbedding, cosineSimilarity, segmentText } from './document-knowledge.util'
 
 /**
  * File overview
@@ -167,6 +168,17 @@ interface AiExtractionResult {
 		metadata: Prisma.JsonValue | null
 	}
 	json: Record<string, unknown>
+}
+
+interface DocumentSearchFilters {
+	query?: string
+	caseType?: string
+	area?: string
+	court?: string
+	dateFrom?: Date
+	dateTo?: Date
+	hasSummary?: boolean
+	hasMetadata?: boolean
 }
 
 /**
@@ -560,6 +572,9 @@ export class DocumentService {
 
 		this.logger.log(`📄 Document created with ID: ${document.id}`)
 
+		// Kick off lightweight knowledge capture: segmentation + embedding (best-effort).
+		await this.captureSegmentsAndEmbedding(document.id, rawText, uploadData.summary as string | undefined)
+
 		return this.mapToDocumentType(document)
 	}
 
@@ -679,7 +694,277 @@ export class DocumentService {
 		}
 	}
 
+	// ===== KNOWLEDGE CAPTURE AND SEARCH =====
+
+	async getSegments(documentId: number): Promise<DocumentSegment[]> {
+		return this.prisma.documentSegment.findMany({
+			where: { documentId },
+			orderBy: { position: 'asc' },
+		})
+	}
+
+	async getRelations(documentId: number): Promise<DocumentRelation[]> {
+		return this.prisma.documentRelation.findMany({
+			where: { OR: [{ sourceId: documentId }, { targetId: documentId }] },
+			orderBy: { createdAt: 'desc' },
+		})
+	}
+
+	async createRelation(input: { sourceId: number; targetId: number; relationType: string; description?: string | null }) {
+		if (input.sourceId === input.targetId) {
+			throw new BadRequestException('A document cannot relate to itself.')
+		}
+		if (!input.relationType || input.relationType.trim().length === 0) {
+			throw new BadRequestException('relationType is required.')
+		}
+
+		// Ensure both documents exist to avoid silent foreign key errors.
+		const [sourceExists, targetExists] = await Promise.all([
+			this.prisma.document.count({ where: { id: input.sourceId } }),
+			this.prisma.document.count({ where: { id: input.targetId } }),
+		])
+		if (!sourceExists || !targetExists) {
+			throw new NotFoundException('One or both documents were not found.')
+		}
+
+		return this.prisma.documentRelation.create({
+			data: {
+				sourceId: input.sourceId,
+				targetId: input.targetId,
+				relationType: input.relationType.trim(),
+				description: input.description ?? null,
+			},
+		})
+	}
+
+	async refreshEmbedding(documentId: number): Promise<DocumentEmbedding | null> {
+		const text = await this.hydrateDocumentText(documentId)
+		if (!text) return null
+		return this.upsertEmbedding(documentId, text)
+	}
+
+	async searchDocuments(
+		filters: DocumentSearchFilters,
+		limit = 25,
+		offset = 0,
+	): Promise<{
+		items: DocumentType[]
+		total: number
+		caseTypeFacets: { key: string; count: number }[]
+		areaFacets: { key: string; count: number }[]
+		courtFacets: { key: string; count: number }[]
+	}> {
+		const where = this.buildSearchWhere(filters)
+
+		const [items, total, caseTypeFacets, areaFacets, courtFacets] = await Promise.all([
+			this.prisma.document.findMany({
+				where,
+				orderBy: { updatedAt: 'desc' },
+				take: limit,
+				skip: offset,
+			}),
+			this.prisma.document.count({ where }),
+			this.buildFacet('caseType', where),
+			this.buildFacet('area', where),
+			this.buildFacet('court', where),
+		])
+
+		return {
+			items: items.map((doc) => this.mapToDocumentType(doc)),
+			total,
+			caseTypeFacets,
+			areaFacets,
+			courtFacets,
+		}
+	}
+
+	async findSimilarDocuments(documentId: number, limit = 5): Promise<{ document: DocumentType; score: number }[]> {
+		const sourceEmbedding =
+			(await this.prisma.documentEmbedding.findFirst({ where: { documentId } })) ?? (await this.refreshEmbedding(documentId))
+
+		if (!sourceEmbedding || !Array.isArray(sourceEmbedding.embedding)) {
+			return []
+		}
+
+		const sourceVector = this.parseEmbedding(sourceEmbedding.embedding)
+		if (sourceVector.length === 0) return []
+
+		const candidates = await this.prisma.documentEmbedding.findMany({
+			where: { documentId: { not: documentId } },
+			include: { document: true },
+		})
+
+		const scored = candidates
+			.map((candidate) => {
+				const vector = this.parseEmbedding(candidate.embedding)
+				const score = cosineSimilarity(sourceVector, vector)
+				return { candidate, score }
+			})
+			.filter((item) => item.score > 0)
+			.sort((a, b) => b.score - a.score)
+			.slice(0, limit)
+
+		return scored.map((item) => ({
+			document: this.mapToDocumentType(item.candidate.document),
+			score: item.score,
+		}))
+	}
+
 	// ===== PRIVATE MAPPING METHODS =====
+
+	private async captureSegmentsAndEmbedding(documentId: number, rawText: string, summary?: string | null): Promise<void> {
+		const trimmed = rawText?.trim() ?? ''
+		if (!trimmed) return
+
+		try {
+			const segments = segmentText(trimmed)
+			if (segments.length > 0) {
+				// Replace existing segments to keep ordering coherent when uploads are retried.
+				await this.prisma.documentSegment.deleteMany({ where: { documentId } })
+				await this.prisma.documentSegment.createMany({
+					data: segments.map((segment) => ({
+						documentId,
+						title: segment.title,
+						content: segment.content,
+						tokenCount: segment.tokenCount,
+						position: segment.position,
+					})),
+				})
+			}
+		} catch (error) {
+			this.logger.warn(`Failed to persist segments for document ${documentId}: ${String(error)}`)
+		}
+
+		try {
+			await this.upsertEmbedding(documentId, summary ?? trimmed)
+		} catch (error) {
+			this.logger.warn(`Failed to compute embedding for document ${documentId}: ${String(error)}`)
+		}
+	}
+
+	private async hydrateDocumentText(documentId: number): Promise<string> {
+		const [segments, document] = await Promise.all([
+			this.prisma.documentSegment.findMany({ where: { documentId }, orderBy: { position: 'asc' }, take: 50 }),
+			this.prisma.document.findUnique({ where: { id: documentId } }),
+		])
+
+		if (segments.length > 0) {
+			return segments.map((s) => s.content).join('\n\n')
+		}
+
+		if (!document) return ''
+		const parts = [document.summary ?? '', document.title ?? '', document.court ?? '', document.caseNumber ?? ''].filter(Boolean)
+		return parts.join('\n')
+	}
+
+	private async upsertEmbedding(documentId: number, text: string): Promise<DocumentEmbedding | null> {
+		const normalized = text.trim()
+		if (!normalized) return null
+
+		const { vector, model } = await this.buildEmbeddingVector(normalized)
+		if (vector.length === 0) return null
+
+		const existing = await this.prisma.documentEmbedding.findFirst({ where: { documentId } })
+		const payload = {
+			documentId,
+			model,
+			embedding: vector as unknown as Prisma.InputJsonValue,
+		}
+
+		if (existing) {
+			return this.prisma.documentEmbedding.update({ where: { id: existing.id }, data: payload })
+		}
+
+		return this.prisma.documentEmbedding.create({ data: payload })
+	}
+
+	private async buildEmbeddingVector(text: string): Promise<{ vector: number[]; model: string }> {
+		const apiKey = process.env.OPENAI_API_KEY
+		const model = process.env.OPENAI_EMBEDDING_MODEL ?? 'text-embedding-3-large'
+
+		if (!apiKey) {
+			return { vector: buildLocalEmbedding(text), model: 'local-fingerprint' }
+		}
+
+		try {
+			const client = this.getOpenAiClient(apiKey)
+			const response = await client.embeddings.create({
+				model,
+				input: text.slice(0, 8000),
+			})
+			const vector = response.data?.[0]?.embedding ?? []
+			return { vector, model }
+		} catch (error) {
+			this.logger.warn(`Embedding request failed, falling back to local fingerprint: ${String(error)}`)
+			return { vector: buildLocalEmbedding(text), model: 'local-fingerprint' }
+		}
+	}
+
+	private parseEmbedding(payload: Prisma.JsonValue | null): number[] {
+		if (!Array.isArray(payload)) return []
+		const asNumbers = payload.map((v) => (typeof v === 'number' ? v : Number(v)))
+		return asNumbers.filter((v) => Number.isFinite(v))
+	}
+
+	private buildSearchWhere(filters: DocumentSearchFilters): Prisma.DocumentWhereInput {
+		const where: Prisma.DocumentWhereInput = {}
+
+		if (filters.query) {
+			const q = filters.query.trim()
+			where.OR = [
+				{ title: { contains: q, mode: 'insensitive' } },
+				{ summary: { contains: q, mode: 'insensitive' } },
+				{ caseNumber: { contains: q, mode: 'insensitive' } },
+				{ court: { contains: q, mode: 'insensitive' } },
+			]
+		}
+
+		if (filters.caseType) {
+			where.caseType = { contains: filters.caseType, mode: 'insensitive' }
+		}
+		if (filters.area) {
+			where.area = { contains: filters.area, mode: 'insensitive' }
+		}
+		if (filters.court) {
+			where.court = { contains: filters.court, mode: 'insensitive' }
+		}
+
+		if (filters.dateFrom || filters.dateTo) {
+			where.date = {
+				gte: filters.dateFrom,
+				lte: filters.dateTo,
+			}
+		}
+
+		if (typeof filters.hasSummary === 'boolean') {
+			where.summary = filters.hasSummary ? { not: null } : null
+		}
+		if (typeof filters.hasMetadata === 'boolean') {
+			where.metadata = filters.hasMetadata ? { not: Prisma.DbNull } : { equals: Prisma.DbNull }
+		}
+
+		return where
+	}
+
+	private async buildFacet(
+		field: 'caseType' | 'area' | 'court',
+		where: Prisma.DocumentWhereInput,
+	): Promise<{ key: string; count: number }[]> {
+		const results = await this.prisma.document.groupBy({
+			where: { ...where, [field]: { not: null } },
+			by: [field],
+			_count: { id: true },
+			orderBy: { _count: { id: 'desc' } },
+			take: 5,
+		})
+
+		return results
+			.filter((r) => typeof r[field] === 'string')
+			.map((r) => ({
+				key: String(r[field]),
+				count: Number(r._count?.id ?? 0),
+			}))
+	}
 
 	/**
 	 * Generates a cryptographically secure GUID using the Web Crypto API.

@@ -165,6 +165,85 @@ mutation ParseAllDocumentsMetadata($dryRun: Boolean, $limit: Int, $hasStringArea
 	parseAllDocumentsMetadata(dryRun: $dryRun, limit: $limit, hasStringAreaData: $hasStringAreaData, hasStringMetadata: $hasStringMetadata)
 }
 
+# Faceted search with filters and facet buckets
+query SearchDocuments($query: String, $area: String, $caseType: String, $dateFrom: DateTime) {
+	searchDocuments(filters: { query: $query, area: $area, caseType: $caseType, dateFrom: $dateFrom }, limit: 10) {
+		total
+		items {
+			id
+			title
+			caseNumber
+			area
+			caseType
+		}
+		caseTypeFacets {
+			key
+			count
+		}
+		areaFacets {
+			key
+			count
+		}
+		courtFacets {
+			key
+			count
+		}
+	}
+}
+
+# Portfolio analytics snapshot for dashboards
+query DocumentAnalytics {
+	documentAnalytics {
+		totalDocuments
+		documentsWithSummary
+		documentsWithMetadata
+		relationCount
+		segmentCount
+		newestDocument
+		topAreas {
+			key
+			count
+		}
+		topCaseTypes {
+			key
+			count
+		}
+		monthlyTrend {
+			period
+			count
+		}
+	}
+}
+
+# Relationship graph + similarity lookups
+query GraphAndSimilar($id: Int!) {
+	documentRelations(documentId: $id) {
+		id
+		relationType
+		sourceId
+		targetId
+		description
+		createdAt
+	}
+	similarDocuments(documentId: $id, limit: 3) {
+		score
+		document {
+			id
+			title
+			area
+		}
+	}
+}
+
+# Add a relationship between two documents
+mutation LinkDocuments($sourceId: Int!, $targetId: Int!, $type: String!, $description: String) {
+	linkDocuments(input: { sourceId: $sourceId, targetId: $targetId, relationType: $type, description: $description }) {
+		id
+		relationType
+		description
+	}
+}
+
 # Example usage with variables:
 # {
 #   "id": 1,

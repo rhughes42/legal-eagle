@@ -9,6 +9,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { DocumentsModule } from './documents/documents.module'
 import { AppLogger } from './common/logger.service'
+import { AnalyticsModule } from './analytics/analytics.module'
 
 /**
  * GraphQL Configuration Factory
@@ -162,6 +163,8 @@ function createGraphQLConfig(): ApolloDriverConfig {
 		 * including upload, processing, storage, and retrieval.
 		 */
 		DocumentsModule,
+
+		AnalyticsModule,
 	],
 	controllers: [
 		/**
