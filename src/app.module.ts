@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { GraphQLModule } from '@nestjs/graphql'
+import { ThrottlerModule } from '@nestjs/throttler'
 import { Request, Response } from 'express'
 
 import { AppController } from './app.controller'
@@ -25,11 +26,12 @@ import { AppLogger } from './common/logger.service'
  * ```
  */
 function createGraphQLConfig(): ApolloDriverConfig {
+	const isDevelopment = process.env.NODE_ENV !== 'production'
 	return {
 		driver: ApolloDriver,
 		autoSchemaFile: true,
-		playground: true,
-		introspection: true,
+		playground: isDevelopment,
+		introspection: isDevelopment,
 		context: ({ req, res }: { req: Request; res: Response }) => ({ req, res }),
 		formatError: (error) => ({
 			message: error.message,
@@ -139,6 +141,19 @@ function createGraphQLConfig(): ApolloDriverConfig {
 		 * - Request context injection
 		 */
 		GraphQLModule.forRoot<ApolloDriverConfig>(createGraphQLConfig()),
+
+		/**
+		 * ThrottlerModule - Rate Limiting
+		 *
+		 * Provides request rate limiting to prevent abuse and denial-of-service
+		 * attacks. Configured to allow a maximum of 60 requests per minute per IP.
+		 */
+		ThrottlerModule.forRoot([
+			{
+				ttl: 60_000,
+				limit: 60,
+			},
+		]),
 
 		/**
 		 * DocumentsModule - Document Management Features

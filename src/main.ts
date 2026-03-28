@@ -1,8 +1,9 @@
 import 'reflect-metadata'
-import { Logger } from '@nestjs/common'
+import { Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { graphqlUploadExpress } from 'graphql-upload-ts'
+import helmet from 'helmet'
 import { AppModule } from './app.module'
 
 /**
@@ -49,25 +50,49 @@ async function bootstrap(): Promise<void> {
 		snapshot: true,
 	})
 
+	// Apply security headers via Helmet middleware.
+	app.use(helmet())
+
+	// Configure CORS: restrict origins in production using the CORS_ORIGIN env var.
+	const corsOrigin = process.env.CORS_ORIGIN
+	app.enableCors({
+		origin: corsOrigin ? corsOrigin.split(',').map((o) => o.trim()) : false,
+		credentials: true,
+		methods: ['GET', 'POST'],
+	})
+
+	// Register a global validation pipe to sanitize and validate all incoming data.
+	app.useGlobalPipes(
+		new ValidationPipe({
+			whitelist: true,
+			forbidNonWhitelisted: true,
+			transform: true,
+		}),
+	)
+
 	// Apply the upload limits defined for the challenge.
 	app.use(graphqlUploadExpress({ maxFileSize: 10_000_000, maxFiles: 5 }))
 
-	// Register OpenAPI documentation so the Swagger decorators on controllers are applied.
-	const swaggerConfig = new DocumentBuilder()
-		.setTitle('LegalEagle API')
-		.setDescription('REST endpoints for health checks and service discovery.')
-		.setVersion('1.0.0')
-		.build()
-	const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
-	SwaggerModule.setup('docs', app, swaggerDocument, {
-		swaggerOptions: { persistAuthorization: true },
-	})
+	// Register OpenAPI documentation only in non-production environments.
+	if (process.env.NODE_ENV !== 'production') {
+		const swaggerConfig = new DocumentBuilder()
+			.setTitle('LegalEagle API')
+			.setDescription('REST endpoints for health checks and service discovery.')
+			.setVersion('1.0.0')
+			.build()
+		const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
+		SwaggerModule.setup('docs', app, swaggerDocument, {
+			swaggerOptions: { persistAuthorization: false },
+		})
+	}
 
 	const port = Number(process.env.PORT) || 3000
 	await app.listen(port)
 
 	Logger.log(`LegalEagle backend listening on http://localhost:${port}`, 'Bootstrap')
-	Logger.log(`Swagger UI available at http://localhost:${port}/docs`, 'Bootstrap')
+	if (process.env.NODE_ENV !== 'production') {
+		Logger.log(`Swagger UI available at http://localhost:${port}/docs`, 'Bootstrap')
+	}
 }
 
 // Run the bootstrap function and handle any errors during startup.
