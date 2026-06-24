@@ -1,11 +1,13 @@
 # LegalEagle API
 
-LegalEagle is an AI-native NestJS service for ingesting, enriching, and querying legal documents. The platform layers resilient OpenAI integrations on top of a strongly typed GraphQL + Prisma core, folds in batch metadata refiners, and ships with tuned logging, parsing, and seeding utilities to keep latency predictable. When upstream models become unreachable the system gracefully degrades to a deterministic enrichment path—the API keeps working, but uploads take longer and downstream automation loses the richer AI annotations.
+LegalEagle is an open-source, AI-native NestJS service for ingesting, enriching, and querying legal documents. It is built as a portfolio-ready demo backend that layers OpenAI integrations on top of a strongly typed GraphQL + Prisma core, with parsing, seeding, and operational tooling for realistic workflows.
+
+`OPENAI_API_KEY` is required for correct AI metadata extraction and similarity features. Without it, the API can still run in a degraded fallback mode for local smoke tests, but extracted metadata quality and downstream automation accuracy are reduced.
 
 ## Core Capabilities
 
 - GraphQL endpoints for uploading, listing, updating, and deleting legal documents.
-- PDF and HTML parsing with optional OpenAI structured output enrichment.
+- PDF and HTML parsing with OpenAI structured output enrichment (`OPENAI_API_KEY` required).
 - Prisma ORM with PostgreSQL migrations, seed data, and CLI helpers.
 - Production-ready Docker/Docker Compose configuration with Postgres.
 - Centralised logging utilities, health overview, and auto-generated Swagger docs.
@@ -15,7 +17,7 @@ LegalEagle is an AI-native NestJS service for ingesting, enriching, and querying
 1. `main.ts` bootstraps NestJS, registers multipart upload limits (10 MB per file, 5 files per request), and serves Swagger at `/docs`.
 2. `AppModule` wires configuration, Apollo GraphQL (code-first schema), logging, and the documents feature module.
 3. GraphQL requests hit `DocumentResolver`, which delegates to `DocumentService` for validation, file handling, enrichment, and persistence.
-4. `DocumentService` stores data via `PrismaService` and, when `OPENAI_API_KEY` is configured, calls the OpenAI Responses API for structured metadata.
+4. `DocumentService` stores data via `PrismaService` and calls the OpenAI Responses API for structured metadata and embeddings (`OPENAI_API_KEY` required).
 5. Prisma migrations keep the Postgres schema in sync; optional seed scripts populate demo records.
 
 ## Repository Layout
@@ -66,7 +68,7 @@ app/
 - **Node.js 20** (see `.nvmrc`); npm 10+ recommended.
 - **PostgreSQL 16** (local install or containers). Default port is 5432.
 - **Docker & Docker Compose** *(optional but recommended for local DB/testing)*.
-- **OpenAI API key** *(optional)* for automated metadata enrichment.
+- **OpenAI API key** (required) for metadata extraction, embeddings, and similarity features.
 - macOS/Linux/WSL/Windows are supported; the repository ships PowerShell- and POSIX-friendly scripts.
 
 ## Configuration
@@ -81,6 +83,8 @@ Key variables:
 | ---- | -------- | ------- |
 | `NODE_ENV` | ✅ | `development` or `production`; controls GraphQL Playground/introspection. |
 | `PORT` | ➖ | HTTP port (defaults to `3000`). |
+| `OPENAI_API_KEY` | ✅ | Enables OpenAI metadata extraction and similarity workflows. |
+| `OPENAI_CHAT_MODEL` | ➖ | Overrides the default model for metadata extraction (`gpt-5-mini`). |
 | `OPENAI_EMBEDDING_MODEL` | ➖ | Reserved for embedding workflows; only read when set. |
 
 > Never commit populated `.env` files. Keep secrets local or in your secrets manager.
@@ -400,14 +404,21 @@ The metadata parsing operations convert structured key-value pairs in `areaData`
 
 - The Dockerfile builds the TypeScript sources (`npm run build`) and produces a minimal Node 20 Alpine runtime image with Prisma binary dependencies.
 - `scripts/wait-for-db.sh` is available if you need to guard migrations while orchestrating services manually.
-- `OPENAI_API_KEY` should be supplied via environment variables or secrets in production. Without it, OpenAI-dependent behaviour is skipped gracefully.
+- `OPENAI_API_KEY` must be supplied via environment variables or secrets in production for correct AI outputs and similarity quality.
 
 ## Caveats & Known Limitations
 
 - **Database readiness**: **Critical for development workflow** — when using Docker Compose, always run `docker compose up -d db` and wait for the database to stabilize before starting the development server with `npm run start:dev`. The `scripts/wait-for-db.sh` script helps verify database readiness and prevents race conditions.
 - **Supported upload types**: only `.pdf` and `.html` are parsed. Other MIME types trigger an `UnsupportedMediaTypeException`.
 - **Upload limits**: GraphQL uploads are capped at 10 MB per file and 5 files per request (configured in `main.ts`).
-- **OpenAI enrichment**: requires `OPENAI_API_KEY`. Responses add latency and incur costs; logs show detailed usage when available.
+- **OpenAI enrichment**: requires `OPENAI_API_KEY`. Without it, the service runs in reduced-capability fallback mode intended only for local smoke testing.
+
+## Naming Recommendation (If Scope Expands Beyond Legal)
+
+If this repository continues expanding into general document intelligence (cross-domain ingestion, analytics, and graph features beyond legal workflows), consider renaming it to:
+
+- **Suggested name:** `doc-graph-ai`
+- **Suggested repository description:** `Open-source AI document intelligence API for ingestion, metadata extraction, semantic similarity, and analytics workflows.`
 - **Seed script prompts**: `npm run seed` is interactive. For non-interactive environments (CI, Docker), pass `--force`.
 - **ESM/CJS compatibility**: the project targets CommonJS; dependencies like `graphql-upload-ts` are pinned to CJS-compatible releases.
 
