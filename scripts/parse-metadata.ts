@@ -12,7 +12,7 @@
  * - parseAllDocumentsMetadata(options) for batch processing
  *
  * Usage:
- *   npm run parse-metadata [-- --document-id=<id>] [-- --dry-run] [-- --help]
+ *   npx ts-node scripts/parse-metadata.ts [--document-id=<id>] [--dry-run] [--help]
  *
  * Options:
  *   --document-id=<id>  Process only the document with specified ID
@@ -20,9 +20,9 @@
  *   --help             Show this help message
  *
  * Examples:
- *   npm run parse-metadata -- --document-id=82
- *   npm run parse-metadata -- --dry-run
- *   npm run parse-metadata
+ *   npx ts-node scripts/parse-metadata.ts --document-id=82
+ *   npx ts-node scripts/parse-metadata.ts --dry-run
+ *   npx ts-node scripts/parse-metadata.ts
  */
 
 import { NestFactory } from '@nestjs/core'
@@ -180,7 +180,7 @@ particularly the areaData field which contains structured key-value pairs
 in a JSON string format.
 
 Usage:
-  npm run ${scriptName} [-- --document-id=<id>] [-- --dry-run] [-- --help]
+  npx ts-node scripts/${scriptName}.ts [--document-id=<id>] [--dry-run] [--help]
 
 Options:
   --document-id=<id>  Process only the document with specified ID
@@ -188,9 +188,9 @@ Options:
   --help             Show this help message
 
 Examples:
-  npm run ${scriptName} -- --document-id=82
-  npm run ${scriptName} -- --dry-run
-  npm run ${scriptName}
+  npx ts-node scripts/${scriptName}.ts --document-id=82
+  npx ts-node scripts/${scriptName}.ts --dry-run
+  npx ts-node scripts/${scriptName}.ts
 
 What it does:
   - Converts areaData from key-value pairs array to clean object

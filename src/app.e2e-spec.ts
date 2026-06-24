@@ -52,8 +52,8 @@ import { PrismaService } from './prisma/prisma.service'
  *   and `deleteDocument` operations with the expected shapes.
  *
  * @example
- * // Typical invocation (depending on project scripts/config):
- * //   npm run test:e2e
+ * // Typical invocation:
+ * //   npm test
  *
  * @see AppModule - application wiring used by the tests
  * @see PrismaService - used to seed and assert database state
