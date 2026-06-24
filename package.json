@@ -1,7 +1,7 @@
 {
 	"name": "legal-eagle",
 	"version": "0.0.1",
-	"description": "Lightweight NestJS starter customized for the LegalEagle challenge with TypeScript, Prisma ORM, PostgreSQL, and Docker support",
+	"description": "Open-source AI legal document intelligence API built with NestJS, GraphQL, Prisma, PostgreSQL, and OpenAI",
 	"author": "Ryan Hughes <ryan@graphtechnologies.xyz> (https://graphtechnologies.xyz)",
 	"private": true,
 	"scripts": {
